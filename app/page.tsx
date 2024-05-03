@@ -2,15 +2,30 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
 import clsx from 'clsx';
 
 export default function Page() {
-  const [isCreatingNewRoom, setIsCreatingNewRoom] = useState(false);
+  const [isCreatingNewGroup, setIsCreatingNewGroup] = useState(false);
 
   const router = useRouter();
+  const supabase = createClient();
 
-  function startNewMeeting() {
-    setIsCreatingNewRoom(true);
+  async function startNewMeeting() {
+    setIsCreatingNewGroup(true);
+
+    const { data, error } = await supabase.from('Group').insert([{}]).select();
+
+    if (error) {
+      console.error('Creating Groupe Error: ', error);
+      alert('Creating Group Error');
+      setIsCreatingNewGroup(false);
+    } else {
+      const groupId: string = data[0].id;
+      const groupUrl: string = '/group/' + groupId;
+
+      router.push(groupUrl);
+    }
   }
 
   return (
@@ -25,13 +40,13 @@ export default function Page() {
           </h2>
           <button
             className={clsx('h-10 w-40 rounded-lg', {
-              'bg-emerald-500  hover:bg-emerald-600': !isCreatingNewRoom,
-              'bg-emerald-700': isCreatingNewRoom,
+              'bg-emerald-500  hover:bg-emerald-600': !isCreatingNewGroup,
+              'bg-emerald-700': isCreatingNewGroup,
             })}
             onClick={startNewMeeting}
-            disabled={isCreatingNewRoom}
+            disabled={isCreatingNewGroup}
           >
-            {isCreatingNewRoom ? 'Wait a minute ...' : 'New Meeting'}
+            {isCreatingNewGroup ? 'Wait a minute ...' : 'New Meeting'}
           </button>
         </section>
       </main>
