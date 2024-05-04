@@ -14,7 +14,7 @@ export default function Page() {
   async function startNewMeeting() {
     setIsCreatingNewGroup(true);
 
-    const { data, error } = await supabase.from('Group').insert([{}]).select();
+    const { data, error } = await supabase.from('group').insert([{}]).select();
 
     if (error) {
       console.error('Creating Groupe Error: ', error);
@@ -30,7 +30,7 @@ export default function Page() {
 
   return (
     <>
-      <main className='flex h-screen w-screen items-center justify-center bg-zinc-800 font-bold text-white'>
+      <main className='flex h-screen w-screen items-center justify-center font-bold text-white'>
         <section className='flex flex-col items-center justify-center'>
           <h1 className='mb-4 text-center text-6xl text-emerald-500'>
             Let's Meet
