@@ -53,6 +53,8 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }
 
   useEffect(() => {
+    console.log(`https://lets-meet-ivory.vercel.app/group/${params.groupId}`);
+
     async function setUp() {
       try {
         const {
