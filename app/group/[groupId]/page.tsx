@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import Schedule from '@/components/Schedule';
+import Modal from '@/components/Modal';
 
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const SUPABASE_URL = 'https://dynrtinrvrbbilkazcei.supabase.co';
@@ -15,6 +16,7 @@ interface User {
 
 export default function Page({ params }: { params: { groupId: string } }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isModalShown, setIsModalShown] = useState<boolean>(false);
 
   async function handleLogin() {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -38,7 +40,16 @@ export default function Page({ params }: { params: { groupId: string } }) {
       alert('Logout Error');
     } else {
       setUser(null);
+      closeModal();
     }
+  }
+
+  function openModal() {
+    setIsModalShown(true);
+  }
+
+  function closeModal() {
+    setIsModalShown(false);
   }
 
   useEffect(() => {
@@ -71,7 +82,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
             <img
               src={user.avatarUrl}
               className='h-8 w-8 cursor-pointer rounded-full'
-              onClick={handleLogout}
+              onClick={openModal}
             />
           ) : (
             <button
@@ -83,6 +94,13 @@ export default function Page({ params }: { params: { groupId: string } }) {
           )}
         </section>
         <Schedule />
+        {isModalShown && (
+          <Modal
+            email={user?.email ?? ''}
+            handleLogout={handleLogout}
+            closeModal={closeModal}
+          />
+        )}
       </main>
     </>
   );
