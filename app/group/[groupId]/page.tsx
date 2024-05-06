@@ -22,7 +22,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.href,
+        redirectTo: `https://lets-meet-ivory.vercel.app/${params.groupId}`,
       },
     });
 
