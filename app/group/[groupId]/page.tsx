@@ -22,7 +22,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `http://localhost:3000/group/${params.groupId}`,
+        redirectTo: window.location.href,
       },
     });
 
