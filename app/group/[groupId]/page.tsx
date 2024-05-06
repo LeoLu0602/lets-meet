@@ -22,7 +22,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `https://lets-meet-ivory.vercel.app/${params.groupId}`,
+        redirectTo: `${window.location.origin}/group/${params.groupId}`,
       },
     });
 
@@ -53,8 +53,6 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }
 
   useEffect(() => {
-    console.log(`https://lets-meet-ivory.vercel.app/group/${params.groupId}`);
-
     async function setUp() {
       try {
         const {
