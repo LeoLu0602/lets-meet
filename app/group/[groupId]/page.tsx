@@ -7,6 +7,7 @@ import {
   User,
   createClient,
 } from '@supabase/supabase-js';
+import clsx from 'clsx';
 import Schedule from '@/components/Schedule';
 import Modal from '@/components/Modal';
 
@@ -18,10 +19,15 @@ export default function Page({ params }: { params: { groupId: string } }) {
   const [user, setUser] = useState<User | null>(null);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [isModalShown, setIsModalShown] = useState<boolean>(false);
+  const [isAllSelected, setIsAllSelected] = useState<boolean>(false);
 
   useEffect(() => {
     setUp();
   }, []);
+
+  function toggle(): void {
+    setIsAllSelected((prevVal) => !prevVal);
+  }
 
   async function handleLogin(): Promise<void> {
     const { error }: { error: AuthError | null } =
@@ -126,7 +132,27 @@ export default function Page({ params }: { params: { groupId: string } }) {
   return (
     <>
       <main className='text-white'>
-        <section className='fixed left-0 top-0 z-10 flex h-12 w-screen items-center justify-end bg-zinc-800 px-4 font-bold'>
+        <section className='fixed left-0 top-0 z-10 flex h-12 w-screen items-center justify-between  bg-zinc-800 px-4 font-bold'>
+          <section>
+            <button
+              className={clsx('h-8 px-4', {
+                'bg-emerald-500': isAllSelected,
+                'bg-zinc-500': !isAllSelected,
+              })}
+              onClick={toggle}
+            >
+              All
+            </button>
+            <button
+              className={clsx('h-8 px-4', {
+                'bg-emerald-500': !isAllSelected,
+                'bg-zinc-500': isAllSelected,
+              })}
+              onClick={toggle}
+            >
+              You
+            </button>
+          </section>
           {user ? (
             <img
               src={user.user_metadata.avatar_url}
