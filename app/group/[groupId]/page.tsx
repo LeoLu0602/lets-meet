@@ -64,6 +64,19 @@ export default function Page({ params }: { params: { groupId: string } }) {
             email: user.email ?? '',
             avatarUrl: user.user_metadata.avatar_url,
           });
+
+          // check if group-user relation exists
+          const { data: group_user } = await supabase
+            .from('group_user')
+            .select('*')
+            .eq('user_id', user.id);
+
+          // no group-user relation -> create one
+          if (!group_user || group_user.length === 0) {
+            await supabase
+              .from('group_user')
+              .insert([{ group_id: params.groupId, user_id: user.id }]);
+          }
         }
       } catch (error) {
         console.error('Set Up Error: ', error);
