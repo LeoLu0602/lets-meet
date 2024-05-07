@@ -1,13 +1,11 @@
 'use client';
 
-import { MouseEventHandler } from 'react';
-
 export default function Modal({
   email,
   handleLogout,
   closeModal,
 }: {
-  email: string;
+  email: string | null;
   handleLogout: Function;
   closeModal: Function;
 }) {
@@ -21,7 +19,7 @@ export default function Modal({
       }}
     >
       <section className='flex h-40 w-80 flex-col items-center justify-center gap-4 bg-black/100 font-bold'>
-        <h2>👋 {email}</h2>
+        <h2>👋 {email ?? ''}</h2>
         <button
           className='text-sky-500'
           onClick={() => {
