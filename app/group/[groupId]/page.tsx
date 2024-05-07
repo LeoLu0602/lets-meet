@@ -10,6 +10,7 @@ const SUPABASE_URL = 'https://dynrtinrvrbbilkazcei.supabase.co';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 interface User {
+  userId: string;
   email: string;
   avatarUrl: string;
 }
@@ -61,6 +62,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
 
         if (user) {
           setUser({
+            userId: user.id,
             email: user.email ?? '',
             avatarUrl: user.user_metadata.avatar_url,
           });
@@ -106,7 +108,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
             </button>
           )}
         </section>
-        <Schedule />
+        <Schedule supabase={supabase} userId={user?.userId ?? null} />
         {isModalShown && (
           <Modal
             email={user?.email ?? ''}
