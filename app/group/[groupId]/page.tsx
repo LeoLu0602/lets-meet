@@ -67,23 +67,47 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }
 
   async function setUp() {
+    const allAvailableTimeSlots: Map<string, string[]> =
+      await retrievedAvailableTimeSlots();
+
     const user: User | null = await retrieveUser();
 
     setUser(user);
 
+    // user not logged in
     if (!user) {
       return;
     }
 
-    const groupUser: any[] | null = await retrieveGroupUser(user);
+    setAvailableTimeSlots(allAvailableTimeSlots.get(user.id) ?? []);
 
-    setAvailableTimeSlots(groupUser?.[0].available_time_slots ?? []);
+    // user not in the group yet -> user joins the group
+    if (!allAvailableTimeSlots.has(user.id)) {
+      await joinGroup(user);
+    }
+  }
 
-    if (!groupUser || groupUser.length > 0) {
-      return;
+  async function retrievedAvailableTimeSlots(): Promise<Map<string, string[]>> {
+    const {
+      data,
+      error,
+    }: { data: any[] | null; error: PostgrestError | null } = await supabase
+      .from('group_user')
+      .select('*')
+      .eq('group_id', params.groupId);
+
+    if (error) {
+      console.error('Retrieve Group User Error: ', error);
+      alert('Retrieve Group User Error');
+      return new Map();
     }
 
-    await joinGroup(user);
+    return new Map(
+      data?.map(({ user_id, available_time_slots }) => [
+        user_id,
+        available_time_slots,
+      ]) ?? []
+    );
   }
 
   async function retrieveUser(): Promise<User | null> {
@@ -92,24 +116,6 @@ export default function Page({ params }: { params: { groupId: string } }) {
     }: { data: { user: User | null } } = await supabase.auth.getUser();
 
     return user;
-  }
-
-  async function retrieveGroupUser(user: User) {
-    const {
-      data,
-      error,
-    }: { data: any[] | null; error: PostgrestError | null } = await supabase
-      .from('group_user')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('group_id', params.groupId);
-
-    if (error) {
-      console.error('Retrieve Group User Error: ', error);
-      alert('Retrieve Group User Error');
-    }
-
-    return data;
   }
 
   async function joinGroup(user: User) {
@@ -173,6 +179,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
           userId={user?.id ?? null}
           groupId={params.groupId}
           initAvailableTimeSlots={availableTimeSlots}
+          isAllSelected={isAllSelected}
         />
         {isModalShown && (
           <Modal
