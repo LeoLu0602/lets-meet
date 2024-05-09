@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, memo } from 'react';
+import { useState, useEffect } from 'react';
 import {
   AuthError,
   PostgrestError,
@@ -25,6 +25,7 @@ interface Member {
 export default function Page({ params }: { params: { groupId: string } }) {
   const [user, setUser] = useState<Member | null>(null);
   const [members, setMembers] = useState<Member[] | null>(null);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [isModalShown, setIsModalShown] = useState<boolean>(false);
   const [isAllSelected, setIsAllSelected] = useState<boolean>(false);
 
@@ -69,6 +70,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }
 
   function closeModal(): void {
+    setAvailableTimeSlots([]);
     setIsModalShown(false);
   }
 
@@ -87,6 +89,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
 
     // user is logged in
     if (user) {
+      setAvailableTimeSlots(allAvailableTimeSlots.get(user.id) ?? []);
       setUser({
         userId: user.id,
         email: user.user_metadata.email,
@@ -206,7 +209,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
           supabase={supabase}
           userId={user?.userId ?? null}
           groupId={params.groupId}
-          initAvailableTimeSlots={user?.availableTimeSlots ?? []}
+          initAvailableTimeSlots={availableTimeSlots}
           isAllSelected={isAllSelected}
         />
         {isModalShown && (
