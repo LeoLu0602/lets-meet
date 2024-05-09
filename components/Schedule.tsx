@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import clsx from 'clsx';
 import { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
+import clsx from 'clsx';
 
 export default function Schedule({
   supabase,

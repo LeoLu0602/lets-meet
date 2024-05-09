@@ -23,9 +23,8 @@ interface Member {
 }
 
 export default function Page({ params }: { params: { groupId: string } }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<Member | null>(null);
   const [members, setMembers] = useState<Member[] | null>(null);
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [isModalShown, setIsModalShown] = useState<boolean>(false);
   const [isAllSelected, setIsAllSelected] = useState<boolean>(false);
 
@@ -61,7 +60,6 @@ export default function Page({ params }: { params: { groupId: string } }) {
       alert('Logout Error');
     } else {
       setUser(null);
-      setAvailableTimeSlots([]);
       closeModal();
     }
   }
@@ -86,15 +84,19 @@ export default function Page({ params }: { params: { groupId: string } }) {
     );
 
     setMembers(members);
-    setUser(user);
 
     // user is logged in
     if (user) {
-      setAvailableTimeSlots(allAvailableTimeSlots.get(user.id) ?? []);
+      setUser({
+        userId: user.id,
+        email: user.user_metadata.email,
+        availableTimeSlots: allAvailableTimeSlots.get(user.id) ?? [],
+        avatarUrl: user.user_metadata.avatar_url,
+      });
 
       // user not in the group yet -> user joins the group
       if (!memberIds.has(user.id)) {
-        await joinGroup(user);
+        await joinGroup(user, params.groupId);
       }
     }
   }
@@ -142,14 +144,14 @@ export default function Page({ params }: { params: { groupId: string } }) {
     return user;
   }
 
-  async function joinGroup(user: User) {
+  async function joinGroup(user: User, groupId: string) {
     const { error }: { error: PostgrestError | null } = await supabase
       .from('group_user')
       .insert([
         {
-          group_id: params.groupId,
+          group_id: groupId,
           user_id: user.id,
-          email: user.email,
+          email: user.user_metadata.email,
           available_time_slots: [],
           avatar_url: user.user_metadata.avatar_url,
         },
@@ -187,7 +189,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
           </section>
           {user ? (
             <img
-              src={user.user_metadata.avatar_url}
+              src={user.avatarUrl}
               className='h-8 w-8 cursor-pointer rounded-full'
               onClick={openModal}
             />
@@ -202,9 +204,9 @@ export default function Page({ params }: { params: { groupId: string } }) {
         </section>
         <Schedule
           supabase={supabase}
-          userId={user?.id ?? null}
+          userId={user?.userId ?? null}
           groupId={params.groupId}
-          initAvailableTimeSlots={availableTimeSlots}
+          initAvailableTimeSlots={user?.availableTimeSlots ?? []}
           isAllSelected={isAllSelected}
         />
         {isModalShown && (
