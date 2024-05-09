@@ -123,9 +123,11 @@ export default function Page({ params }: { params: { groupId: string } }) {
       .from('group_user')
       .insert([
         {
-          user_id: user.id,
           group_id: params.groupId,
+          user_id: user.id,
+          email: user.email,
           available_time_slots: [],
+          avatar_url: user.user_metadata.avatar_url,
         },
       ]);
 
