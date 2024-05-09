@@ -74,28 +74,28 @@ export default function Page({ params }: { params: { groupId: string } }) {
     setIsModalShown(false);
   }
 
-  async function setUp() {
+  async function setUp(): Promise<void> {
     const members: Member[] = await getMembers(params.groupId);
+    const user: User | null = await retrieveUser();
+    const memberIds: Set<string> = new Set(members.map(({ userId }) => userId));
+    const allAvailableTimeSlots: Map<string, string[]> = new Map(
+      members.map(({ userId, availableTimeSlots }) => [
+        userId,
+        availableTimeSlots,
+      ])
+    );
 
     setMembers(members);
-
-    const allAvailableTimeSlots: Map<string, string[]> =
-      await retrievedAvailableTimeSlots();
-
-    const user: User | null = await retrieveUser();
-
     setUser(user);
 
-    // user not logged in
-    if (!user) {
-      return;
-    }
+    // user is logged in
+    if (user) {
+      setAvailableTimeSlots(allAvailableTimeSlots.get(user.id) ?? []);
 
-    setAvailableTimeSlots(allAvailableTimeSlots.get(user.id) ?? []);
-
-    // user not in the group yet -> user joins the group
-    if (!allAvailableTimeSlots.has(user.id)) {
-      await joinGroup(user);
+      // user not in the group yet -> user joins the group
+      if (!memberIds.has(user.id)) {
+        await joinGroup(user);
+      }
     }
   }
 
@@ -131,30 +131,6 @@ export default function Page({ params }: { params: { groupId: string } }) {
           };
         }
       ) ?? []
-    );
-  }
-
-  async function retrievedAvailableTimeSlots(): Promise<Map<string, string[]>> {
-    const {
-      data,
-      error,
-    }: { data: any[] | null; error: PostgrestError | null } = await supabase
-      .from('group_user')
-      .select('*')
-      .eq('group_id', params.groupId);
-
-    if (error) {
-      console.error('Retrieve Group User Error: ', error);
-      alert('Retrieve Group User Error');
-
-      return new Map();
-    }
-
-    return new Map(
-      data?.map(({ user_id, available_time_slots }) => [
-        user_id,
-        available_time_slots,
-      ]) ?? []
     );
   }
 
