@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import {
   AuthError,
   PostgrestError,
@@ -15,8 +15,16 @@ const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const SUPABASE_URL = 'https://dynrtinrvrbbilkazcei.supabase.co';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+interface Member {
+  userId: string;
+  email: string;
+  availableTimeSlots: string[];
+  avatarUrl: string;
+}
+
 export default function Page({ params }: { params: { groupId: string } }) {
   const [user, setUser] = useState<User | null>(null);
+  const [members, setMembers] = useState<Member[] | null>(null);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [isModalShown, setIsModalShown] = useState<boolean>(false);
   const [isAllSelected, setIsAllSelected] = useState<boolean>(false);
@@ -67,6 +75,10 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }
 
   async function setUp() {
+    const members: Member[] = await getMembers(params.groupId);
+
+    setMembers(members);
+
     const allAvailableTimeSlots: Map<string, string[]> =
       await retrievedAvailableTimeSlots();
 
@@ -87,6 +99,41 @@ export default function Page({ params }: { params: { groupId: string } }) {
     }
   }
 
+  async function getMembers(groupId: string): Promise<Member[]> {
+    const {
+      data,
+      error,
+    }: { data: any[] | null; error: PostgrestError | null } = await supabase
+      .from('group_user')
+      .select('*')
+      .eq('group_id', groupId);
+
+    if (error) {
+      console.error('Retrieve Group User Error: ', error);
+      alert('Retrieve Group User Error');
+
+      return [];
+    }
+
+    return (
+      data?.map(
+        ({
+          user_id: userId,
+          email,
+          available_time_slots: availableTimeSlots,
+          avatar_url: avatarUrl,
+        }) => {
+          return {
+            userId,
+            email,
+            availableTimeSlots,
+            avatarUrl,
+          };
+        }
+      ) ?? []
+    );
+  }
+
   async function retrievedAvailableTimeSlots(): Promise<Map<string, string[]>> {
     const {
       data,
@@ -99,6 +146,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
     if (error) {
       console.error('Retrieve Group User Error: ', error);
       alert('Retrieve Group User Error');
+
       return new Map();
     }
 
