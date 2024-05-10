@@ -63,7 +63,20 @@ export default function Page({ params }: { params: { groupId: string } }) {
     if (selectedMember) {
       changeAvailableTimeSlots(selectedMember);
     }
-  }, [selectedMember, members]);
+  }, [selectedMember]);
+
+  useEffect(() => {
+    /*
+      When a user is viewing/changing his/her own schedule,
+      changes in DB should not affect availableTimeSlots.
+      
+      Doing so could slow down changes and results in poor user experience.
+    */
+
+    if (selectedMember && user && selectedMember !== user.userId) {
+      changeAvailableTimeSlots(selectedMember);
+    }
+  }, [members]);
 
   async function setUp(): Promise<void> {
     const members: Member[] = await getMembers(params.groupId);
