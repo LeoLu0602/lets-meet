@@ -24,7 +24,7 @@ interface Member {
 
 export default function Page({ params }: { params: { groupId: string } }) {
   const [user, setUser] = useState<Member | null>(null);
-  const [members, setMembers] = useState<Member[] | null>(null);
+  const [members, setMembers] = useState<Member[]>([]);
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [isModalShown, setIsModalShown] = useState<boolean>(false);
@@ -35,46 +35,11 @@ export default function Page({ params }: { params: { groupId: string } }) {
     setUp();
   }, []);
 
-  function selectMember(memberId: string | null): void {
-    setSelectedMember(memberId);
-  }
-
-  async function handleLogin(): Promise<void> {
-    const { error }: { error: AuthError | null } =
-      await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/group/${params.groupId}`,
-        },
-      });
-
-    if (error) {
-      console.error('Login Error: ', error);
-      alert('Login Error');
+  useEffect(() => {
+    if (selectedMember) {
+      updateAvailableTimeSlots(selectedMember);
     }
-  }
-
-  async function handleLogout(): Promise<void> {
-    const { error }: { error: AuthError | null } =
-      await supabase.auth.signOut();
-
-    if (error) {
-      console.error('Logout Error: ', error);
-      alert('Logout Error');
-    } else {
-      setUser(null);
-      closeModal();
-    }
-  }
-
-  function openModal(): void {
-    setIsModalShown(true);
-  }
-
-  function closeModal(): void {
-    setAvailableTimeSlots([]);
-    setIsModalShown(false);
-  }
+  }, [selectedMember]);
 
   async function setUp(): Promise<void> {
     const members: Member[] = await getMembers(params.groupId);
@@ -98,7 +63,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
         availableTimeSlots: allAvailableTimeSlots.get(user.id) ?? [],
         avatarUrl: user.user_metadata.avatar_url,
       });
-      setSelectedMember(user.id);
+      setSelectedMember('all');
 
       // user not in the group yet -> user joins the group
       if (!memberIds.has(user.id)) {
@@ -167,6 +132,87 @@ export default function Page({ params }: { params: { groupId: string } }) {
       console.error('Join Group Error: ', error);
       alert('Join Group Error');
     }
+  }
+
+  async function handleLogin(): Promise<void> {
+    const { error }: { error: AuthError | null } =
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/group/${params.groupId}`,
+        },
+      });
+
+    if (error) {
+      console.error('Login Error: ', error);
+      alert('Login Error');
+    }
+  }
+
+  async function handleLogout(): Promise<void> {
+    const { error }: { error: AuthError | null } =
+      await supabase.auth.signOut();
+
+    if (error) {
+      console.error('Logout Error: ', error);
+      alert('Logout Error');
+    } else {
+      setUser(null);
+      closeModal();
+    }
+  }
+
+  function openModal(): void {
+    setIsModalShown(true);
+  }
+
+  function closeModal(): void {
+    setAvailableTimeSlots([]);
+    setIsModalShown(false);
+  }
+
+  function selectMember(memberId: string | null): void {
+    setSelectedMember(memberId);
+  }
+
+  function updateAvailableTimeSlots(selectedMember: string): void {
+    const allAvailableTimeSlots: Map<string, string[]> = new Map(
+      members.map(({ userId, availableTimeSlots }) => [
+        userId,
+        availableTimeSlots,
+      ])
+    );
+    const newAllAvailableTimeSlots: string[] =
+      selectedMember === 'all'
+        ? Array.from(
+            combineSets(
+              members.map(
+                ({ availableTimeSlots }) => new Set(availableTimeSlots)
+              )
+            )
+          )
+        : allAvailableTimeSlots.get(selectedMember) ?? [];
+
+    setAvailableTimeSlots(newAllAvailableTimeSlots);
+  }
+
+  function combineSets(sets: Set<string>[]): Set<string> {
+    let combinedSet: Set<string> = new Set();
+
+    for (let i = 0; i < sets.length; i++) {
+      const nextSet: Set<string> = sets[i];
+
+      if (i === 0) {
+        combinedSet = sets[0];
+        continue;
+      }
+
+      combinedSet = new Set(
+        Array.from(combinedSet).filter((val: string) => nextSet.has(val))
+      );
+    }
+
+    return combinedSet;
   }
 
   return (
