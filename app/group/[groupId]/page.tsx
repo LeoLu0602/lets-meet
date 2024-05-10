@@ -35,13 +35,35 @@ export default function Page({ params }: { params: { groupId: string } }) {
 
   useEffect(() => {
     setUp();
+
+    const channel = supabase
+      .channel('custom-filter-channel')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'group_user',
+          filter: `group_id=eq.${params.groupId}`,
+        },
+        async () => {
+          const members: Member[] = await getMembers(params.groupId);
+
+          setMembers(members);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
     if (selectedMember) {
       changeAvailableTimeSlots(selectedMember);
     }
-  }, [selectedMember]);
+  }, [selectedMember, members]);
 
   async function setUp(): Promise<void> {
     const members: Member[] = await getMembers(params.groupId);
