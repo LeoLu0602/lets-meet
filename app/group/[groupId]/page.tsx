@@ -23,7 +23,9 @@ interface Member {
 }
 
 export default function Page({ params }: { params: { groupId: string } }) {
-  const [user, setUser] = useState<Member | null>(null);
+  const [user, setUser] = useState<Omit<Member, 'availableTimeSlots'> | null>(
+    null
+  );
   const [members, setMembers] = useState<Member[]>([]);
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
@@ -37,7 +39,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
 
   useEffect(() => {
     if (selectedMember) {
-      updateAvailableTimeSlots(selectedMember);
+      changeAvailableTimeSlots(selectedMember);
     }
   }, [selectedMember]);
 
@@ -60,7 +62,6 @@ export default function Page({ params }: { params: { groupId: string } }) {
       setUser({
         userId: user.id,
         email: user.user_metadata.email,
-        availableTimeSlots: allAvailableTimeSlots.get(user.id) ?? [],
         avatarUrl: user.user_metadata.avatar_url,
       });
       setSelectedMember('all');
@@ -175,7 +176,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
     setSelectedMember(memberId);
   }
 
-  function updateAvailableTimeSlots(selectedMember: string): void {
+  function changeAvailableTimeSlots(selectedMember: string): void {
     const allAvailableTimeSlots: Map<string, string[]> = new Map(
       members.map(({ userId, availableTimeSlots }) => [
         userId,
