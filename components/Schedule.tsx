@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
 import clsx from 'clsx';
 
@@ -8,23 +7,17 @@ export default function Schedule({
   supabase,
   userId,
   groupId,
-  initAvailableTimeSlots,
+  availableTimeSlots,
+  setAvailableTimeSlots,
   isUserSelected,
 }: {
   supabase: SupabaseClient<any, 'public', any>;
   userId: string | null;
   groupId: string;
-  initAvailableTimeSlots: string[];
+  availableTimeSlots: string[];
+  setAvailableTimeSlots: Function;
   isUserSelected: boolean;
 }) {
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>(
-    initAvailableTimeSlots
-  );
-
-  useEffect(() => {
-    setAvailableTimeSlots(initAvailableTimeSlots);
-  }, [initAvailableTimeSlots]);
-
   function handleClick(
     i: number,
     j: number,

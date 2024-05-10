@@ -263,7 +263,8 @@ export default function Page({ params }: { params: { groupId: string } }) {
           supabase={supabase}
           userId={user?.userId ?? null}
           groupId={params.groupId}
-          initAvailableTimeSlots={availableTimeSlots}
+          availableTimeSlots={availableTimeSlots}
+          setAvailableTimeSlots={setAvailableTimeSlots}
           isUserSelected={isUserSelected}
         />
         {isModalShown && (
