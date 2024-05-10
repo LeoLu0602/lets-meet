@@ -25,16 +25,18 @@ interface Member {
 export default function Page({ params }: { params: { groupId: string } }) {
   const [user, setUser] = useState<Member | null>(null);
   const [members, setMembers] = useState<Member[] | null>(null);
+  const [selectedMember, setSelectedMember] = useState<string | null>(null);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [isModalShown, setIsModalShown] = useState<boolean>(false);
-  const [isAllSelected, setIsAllSelected] = useState<boolean>(false);
+  const isUserSelected: boolean =
+    user !== null && selectedMember !== null && selectedMember === user.userId;
 
   useEffect(() => {
     setUp();
   }, []);
 
-  function toggle(): void {
-    setIsAllSelected((prevVal) => !prevVal);
+  function selectMember(memberId: string | null): void {
+    setSelectedMember(memberId);
   }
 
   async function handleLogin(): Promise<void> {
@@ -96,6 +98,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
         availableTimeSlots: allAvailableTimeSlots.get(user.id) ?? [],
         avatarUrl: user.user_metadata.avatar_url,
       });
+      setSelectedMember(user.id);
 
       // user not in the group yet -> user joins the group
       if (!memberIds.has(user.id)) {
@@ -173,19 +176,23 @@ export default function Page({ params }: { params: { groupId: string } }) {
           <section>
             <button
               className={clsx('h-8 px-4', {
-                'bg-emerald-500': isAllSelected,
-                'bg-zinc-500': !isAllSelected,
+                'bg-zinc-500': isUserSelected,
+                'bg-emerald-500': !isUserSelected,
               })}
-              onClick={toggle}
+              onClick={() => {
+                selectMember('all');
+              }}
             >
               All
             </button>
             <button
               className={clsx('h-8 px-4', {
-                'bg-emerald-500': !isAllSelected,
-                'bg-zinc-500': isAllSelected,
+                'bg-emerald-500': isUserSelected,
+                'bg-zinc-500': !isUserSelected,
               })}
-              onClick={toggle}
+              onClick={() => {
+                selectMember(user?.userId ?? null);
+              }}
             >
               You
             </button>
@@ -210,7 +217,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
           userId={user?.userId ?? null}
           groupId={params.groupId}
           initAvailableTimeSlots={availableTimeSlots}
-          isAllSelected={isAllSelected}
+          isUserSelected={isUserSelected}
         />
         {isModalShown && (
           <Modal

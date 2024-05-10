@@ -9,13 +9,13 @@ export default function Schedule({
   userId,
   groupId,
   initAvailableTimeSlots,
-  isAllSelected,
+  isUserSelected,
 }: {
   supabase: SupabaseClient<any, 'public', any>;
   userId: string | null;
   groupId: string;
   initAvailableTimeSlots: string[];
-  isAllSelected: boolean;
+  isUserSelected: boolean;
 }) {
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>(
     initAvailableTimeSlots
@@ -88,7 +88,7 @@ export default function Schedule({
                   }
                 )}
                 onClick={() => {
-                  if (j > 0 && userId && !isAllSelected) {
+                  if (j > 0 && userId && isUserSelected) {
                     handleClick(i, j, userId, groupId);
                   }
                 }}
