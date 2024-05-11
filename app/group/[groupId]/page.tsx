@@ -288,7 +288,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
           </button>
           <section className='flex h-full items-center gap-2'>
             <input
-              className='h-8 w-52 overflow-auto rounded-lg px-4 text-black'
+              className='h-8 w-52 overflow-auto rounded-lg px-4 text-black disabled:bg-white'
               value={`https://lets-meet-ivory.vercel.app/group/${params.groupId}`}
               disabled={true}
             />
