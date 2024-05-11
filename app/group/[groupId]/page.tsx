@@ -30,6 +30,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [isModalShown, setIsModalShown] = useState<boolean>(false);
+  const [isCopied, setIsCopied] = useState<boolean>(false);
   const isUserSelected: boolean =
     user !== null && selectedMember !== null && selectedMember === user.userId;
 
@@ -251,10 +252,20 @@ export default function Page({ params }: { params: { groupId: string } }) {
     return combinedSet;
   }
 
+  async function copyUrl() {
+    if (!isCopied) {
+      await navigator.clipboard.writeText(
+        `https://lets-meet-ivory.vercel.app/group/${params.groupId}`
+      );
+    }
+
+    setIsCopied((val) => !val);
+  }
+
   return (
     <>
-      <main className='relative mx-auto max-w-[1024px] text-white'>
-        <section className='sticky left-0 top-0 z-10 flex h-12 w-screen items-center justify-end bg-zinc-800 px-2 font-bold'>
+      <main className='relative mx-auto max-w-[1024px] px-2 text-white'>
+        <section className='sticky left-0 top-0 z-10 flex h-12 w-full items-center justify-end bg-zinc-800 font-bold'>
           {user ? (
             <img
               src={user.avatarUrl}
@@ -271,10 +282,21 @@ export default function Page({ params }: { params: { groupId: string } }) {
           )}
         </section>
 
-        <section className='sticky left-0 top-12 z-10 flex h-12 w-screen items-center justify-end bg-zinc-800 px-2 font-bold'>
-          <button className={clsx('h-8 w-20 rounded-lg bg-emerald-500')}>
-            All
-          </button>
+        <section className='sticky left-0 top-12 z-10 flex h-12 w-full items-center justify-end bg-zinc-800 font-bold'>
+          <section className='flex items-center gap-4'>
+            <input
+              className='h-8 w-60 overflow-auto rounded-lg px-4 font-normal text-black disabled:bg-slate-300'
+              value={`https://lets-meet-ivory.vercel.app/group/${params.groupId}`}
+              disabled={true}
+            />
+            <button
+              className={clsx('h-6 w-6 bg-contain bg-no-repeat', {
+                'bg-[url("/copy.svg")] invert': !isCopied,
+                'bg-[url("/green_check.svg")]': isCopied,
+              })}
+              onClick={copyUrl}
+            />
+          </section>
         </section>
 
         <Schedule
