@@ -30,6 +30,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [isModalShown, setIsModalShown] = useState<boolean>(false);
+  const [isUrlCopied, setIsUrlCopied] = useState<boolean>(false);
   const isUserSelected: boolean =
     user !== null && selectedMember !== null && selectedMember === user.userId;
 
@@ -252,9 +253,13 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }
 
   async function copyUrl() {
-    await navigator.clipboard.writeText(
-      `https://lets-meet-ivory.vercel.app/group/${params.groupId}`
-    );
+    if (!isUrlCopied) {
+      await navigator.clipboard.writeText(
+        `https://lets-meet-ivory.vercel.app/group/${params.groupId}`
+      );
+    }
+
+    setIsUrlCopied((val) => !val);
   }
 
   return (
@@ -277,16 +282,30 @@ export default function Page({ params }: { params: { groupId: string } }) {
           )}
         </section>
 
-        <section className='sticky left-0 top-12 z-10 flex h-12 w-full items-center justify-end gap-4 bg-zinc-800'>
-          <input
-            className='h-8 w-60 overflow-auto rounded-lg px-4 text-black'
-            value={`https://lets-meet-ivory.vercel.app/group/${params.groupId}`}
-            disabled={true}
-          />
-          <button
-            className='h-6 w-6 bg-[url("/copy.svg")] bg-contain bg-no-repeat invert'
-            onClick={copyUrl}
-          />
+        <section className='sticky left-0 top-12 z-10 flex h-12 w-full items-center justify-end gap-4'>
+          <button className='h-8 w-20 rounded-lg bg-sky-500 font-bold'>
+            All
+          </button>
+          <section className='flex h-full items-center gap-2'>
+            <input
+              className='h-8 w-52 overflow-auto rounded-lg px-4 text-black'
+              value={`https://lets-meet-ivory.vercel.app/group/${params.groupId}`}
+              disabled={true}
+            />
+            {isUrlCopied ? (
+              <button
+                className='flex h-6 w-6 items-center justify-center text-2xl text-emerald-500'
+                onClick={copyUrl}
+              >
+                &#x2713;
+              </button>
+            ) : (
+              <button
+                className='h-6 w-6 bg-[url("/copy.svg")] bg-contain bg-no-repeat invert'
+                onClick={copyUrl}
+              />
+            )}
+          </section>
         </section>
 
         <Schedule

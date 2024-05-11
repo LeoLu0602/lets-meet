@@ -55,7 +55,7 @@ export default function Schedule({
   }
 
   return (
-    <section>
+    <>
       <section className='sticky left-0 top-24 z-10 flex h-12 w-full justify-around bg-zinc-800'>
         {[' ', 'S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
           <span
@@ -100,6 +100,6 @@ export default function Schedule({
           </div>
         ))}
       </section>
-    </section>
+    </>
   );
 }
