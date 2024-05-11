@@ -253,8 +253,27 @@ export default function Page({ params }: { params: { groupId: string } }) {
 
   return (
     <>
-      <main className='text-white'>
-        <section className='fixed left-0 top-0 z-10 flex h-12 w-screen items-center justify-between  bg-zinc-800 px-4 font-bold'>
+      <main className='relative mx-auto max-w-[1024px] text-white'>
+        <section className='sticky left-0 top-0 z-10 flex h-12 w-screen items-center justify-end bg-zinc-800 px-2 font-bold'>
+          <section>
+            {user ? (
+              <img
+                src={user.avatarUrl}
+                className='h-8 w-8 cursor-pointer rounded-full'
+                onClick={openModal}
+              />
+            ) : (
+              <button
+                className='cursor-pointer text-emerald-500'
+                onClick={handleLogin}
+              >
+                Log In
+              </button>
+            )}
+          </section>
+        </section>
+
+        <section className='sticky left-0 top-12 z-10 flex h-12 w-screen items-center justify-end bg-zinc-800 px-2 font-bold'>
           <section>
             <button
               className={clsx('h-8 px-4', {
@@ -279,21 +298,13 @@ export default function Page({ params }: { params: { groupId: string } }) {
               You
             </button>
           </section>
-          {user ? (
-            <img
-              src={user.avatarUrl}
-              className='h-8 w-8 cursor-pointer rounded-full'
-              onClick={openModal}
-            />
-          ) : (
-            <button
-              className='cursor-pointer text-emerald-500'
-              onClick={handleLogin}
-            >
-              Log In
-            </button>
-          )}
+
+          {/* <section>
+            <input disabled={true} />
+            <button>Copy</button>
+          </section> */}
         </section>
+
         <Schedule
           supabase={supabase}
           userId={user?.userId ?? null}
@@ -302,6 +313,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
           setAvailableTimeSlots={setAvailableTimeSlots}
           isUserSelected={isUserSelected}
         />
+
         {isModalShown && (
           <Modal
             email={user?.email ?? null}

@@ -56,28 +56,32 @@ export default function Schedule({
 
   return (
     <section>
-      <section className='fixed left-0 top-12 z-10 flex h-12 w-full justify-around bg-zinc-800'>
+      <section className='sticky left-0 top-24 z-10 flex h-12 w-full justify-around bg-zinc-800'>
         {[' ', 'S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
           <span
             key={i}
-            className='flex h-full w-[12.5%] items-center justify-center font-bold'
+            className={clsx(
+              'flex h-full w-[12.5%] items-center justify-center font-bold'
+            )}
           >
             {day}
           </span>
         ))}
       </section>
-      <section className='mt-28'>
+
+      <section className='my-4'>
         {new Array(24).fill(null).map((row, i) => (
-          <div key={i} className='flex h-16 w-screen'>
+          <div key={i} className='flex h-16 w-full'>
             {new Array(8).fill(null).map((col, j) => (
               <div
                 key={j}
                 className={clsx(
-                  'relative h-full w-[12.8%] cursor-pointer border-r-2 border-t-2 first:cursor-default first:border-0 last:border-r-0',
+                  'relative h-full w-[12.5%] cursor-pointer border-r-2 border-t-2 first:cursor-default first:border-t-0',
                   {
                     'bg-emerald-500': new Set(availableTimeSlots).has(
                       `${i},${j}`
                     ),
+                    'border-b-2': i === 23 && j > 0,
                   }
                 )}
                 onClick={() => {
@@ -87,7 +91,7 @@ export default function Schedule({
                 }}
               >
                 {j === 0 && (
-                  <span className='left-0flex absolute -top-2 flex w-full items-center justify-center text-xs'>
+                  <span className='absolute -top-2 left-0 flex h-4 w-full items-center justify-center text-xs'>
                     {i.toString().padStart(2, '0')}:00
                   </span>
                 )}
