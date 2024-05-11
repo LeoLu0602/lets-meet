@@ -194,6 +194,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
       alert('Logout Error');
     } else {
       setUser(null);
+      setAvailableTimeSlots([]);
       closeModal();
     }
   }
@@ -203,7 +204,6 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }
 
   function closeModal(): void {
-    setAvailableTimeSlots([]);
     setIsModalShown(false);
   }
 
@@ -255,54 +255,26 @@ export default function Page({ params }: { params: { groupId: string } }) {
     <>
       <main className='relative mx-auto max-w-[1024px] text-white'>
         <section className='sticky left-0 top-0 z-10 flex h-12 w-screen items-center justify-end bg-zinc-800 px-2 font-bold'>
-          <section>
-            {user ? (
-              <img
-                src={user.avatarUrl}
-                className='h-8 w-8 cursor-pointer rounded-full'
-                onClick={openModal}
-              />
-            ) : (
-              <button
-                className='cursor-pointer text-emerald-500'
-                onClick={handleLogin}
-              >
-                Log In
-              </button>
-            )}
-          </section>
+          {user ? (
+            <img
+              src={user.avatarUrl}
+              className='h-8 w-8 cursor-pointer rounded-full'
+              onClick={openModal}
+            />
+          ) : (
+            <button
+              className='cursor-pointer text-emerald-500'
+              onClick={handleLogin}
+            >
+              Log In
+            </button>
+          )}
         </section>
 
         <section className='sticky left-0 top-12 z-10 flex h-12 w-screen items-center justify-end bg-zinc-800 px-2 font-bold'>
-          <section>
-            <button
-              className={clsx('h-8 px-4', {
-                'bg-zinc-500': isUserSelected,
-                'bg-emerald-500': !isUserSelected,
-              })}
-              onClick={() => {
-                selectMember('all');
-              }}
-            >
-              All
-            </button>
-            <button
-              className={clsx('h-8 px-4', {
-                'bg-emerald-500': isUserSelected,
-                'bg-zinc-500': !isUserSelected,
-              })}
-              onClick={() => {
-                selectMember(user?.userId ?? null);
-              }}
-            >
-              You
-            </button>
-          </section>
-
-          {/* <section>
-            <input disabled={true} />
-            <button>Copy</button>
-          </section> */}
+          <button className={clsx('h-8 w-20 rounded-lg bg-emerald-500')}>
+            All
+          </button>
         </section>
 
         <Schedule
