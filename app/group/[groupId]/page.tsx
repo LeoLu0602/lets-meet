@@ -286,8 +286,8 @@ export default function Page({ params }: { params: { groupId: string } }) {
           <button className='h-8 w-20 rounded-lg bg-sky-500 font-bold'>
             All
           </button>
-          <section className='flex h-full items-center gap-2'>
-            <section className='flex h-8 w-52 items-center overflow-auto whitespace-nowrap rounded-lg bg-slate-300 px-4 text-slate-600'>{`https://lets-meet-ivory.vercel.app/group/${params.groupId}`}</section>
+          <section className='flex h-full items-center gap-4'>
+            <section className='flex h-8 w-52 items-center overflow-auto whitespace-nowrap rounded-lg bg-slate-400 px-4 text-slate-700'>{`https://lets-meet-ivory.vercel.app/group/${params.groupId}`}</section>
             {isUrlCopied ? (
               <button
                 className='flex h-6 w-6 items-center justify-center text-2xl text-emerald-500'
