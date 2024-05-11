@@ -279,9 +279,8 @@ export default function Page({ params }: { params: { groupId: string } }) {
 
         <section className='sticky left-0 top-12 z-10 flex h-12 w-full items-center justify-end gap-4 bg-zinc-800'>
           <input
-            className='h-8 w-60 overflow-auto rounded-lg px-4 disabled:bg-slate-300 disabled:text-slate-600'
+            className='h-8 w-60 overflow-auto rounded-lg px-4 text-black focus:outline-none'
             value={`https://lets-meet-ivory.vercel.app/group/${params.groupId}`}
-            disabled={true}
           />
           <button
             className='h-6 w-6 bg-[url("/copy.svg")] bg-contain bg-no-repeat invert'
