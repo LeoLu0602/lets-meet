@@ -30,7 +30,6 @@ export default function Page({ params }: { params: { groupId: string } }) {
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [isModalShown, setIsModalShown] = useState<boolean>(false);
-  const [isCopied, setIsCopied] = useState<boolean>(false);
   const isUserSelected: boolean =
     user !== null && selectedMember !== null && selectedMember === user.userId;
 
@@ -253,13 +252,9 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }
 
   async function copyUrl() {
-    if (!isCopied) {
-      await navigator.clipboard.writeText(
-        `https://lets-meet-ivory.vercel.app/group/${params.groupId}`
-      );
-    }
-
-    setIsCopied((val) => !val);
+    await navigator.clipboard.writeText(
+      `https://lets-meet-ivory.vercel.app/group/${params.groupId}`
+    );
   }
 
   return (
@@ -284,21 +279,14 @@ export default function Page({ params }: { params: { groupId: string } }) {
 
         <section className='sticky left-0 top-12 z-10 flex h-12 w-full items-center justify-end gap-4 bg-zinc-800'>
           <input
-            className='h-8 w-60 overflow-auto rounded-lg bg-slate-300 px-4 text-slate-600'
+            className='h-8 w-60 overflow-auto rounded-lg px-4 disabled:bg-slate-300 disabled:text-slate-600'
             value={`https://lets-meet-ivory.vercel.app/group/${params.groupId}`}
             disabled={true}
           />
-          {isCopied ? (
-            <button
-              className='h-6 w-6 bg-[url("/green_check.svg")] bg-contain bg-no-repeat'
-              onClick={copyUrl}
-            />
-          ) : (
-            <button
-              className='h-6 w-6 bg-[url("/copy.svg")] bg-contain bg-no-repeat invert'
-              onClick={copyUrl}
-            />
-          )}
+          <button
+            className='h-6 w-6 bg-[url("/copy.svg")] bg-contain bg-no-repeat invert'
+            onClick={copyUrl}
+          />
         </section>
 
         <Schedule
