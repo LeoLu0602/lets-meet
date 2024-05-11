@@ -264,7 +264,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
 
   return (
     <>
-      <main className='relative mx-auto max-w-[1024px] px-2 text-white'>
+      <main className='relative mx-auto max-w-[1024px] px-4 text-white'>
         <section className='sticky left-0 top-0 z-10 flex h-12 w-full items-center justify-end bg-zinc-800 font-bold'>
           {user ? (
             <img
@@ -282,21 +282,23 @@ export default function Page({ params }: { params: { groupId: string } }) {
           )}
         </section>
 
-        <section className='sticky left-0 top-12 z-10 flex h-12 w-full items-center justify-end bg-zinc-800 font-bold'>
-          <section className='flex items-center gap-4'>
-            <input
-              className='h-8 w-60 overflow-auto rounded-lg px-4 font-normal text-black disabled:bg-slate-300'
-              value={`https://lets-meet-ivory.vercel.app/group/${params.groupId}`}
-              disabled={true}
-            />
+        <section className='sticky left-0 top-12 z-10 flex h-12 w-full items-center justify-end gap-4 bg-zinc-800'>
+          <input
+            className='h-8 w-60 overflow-auto rounded-lg bg-slate-300 px-4 text-slate-600'
+            value={`https://lets-meet-ivory.vercel.app/group/${params.groupId}`}
+            disabled={true}
+          />
+          {isCopied ? (
             <button
-              className={clsx('h-6 w-6 bg-contain bg-no-repeat', {
-                'bg-[url("/copy.svg")] invert': !isCopied,
-                'bg-[url("/green_check.svg")]': isCopied,
-              })}
+              className='h-6 w-6 bg-[url("/green_check.svg")] bg-contain bg-no-repeat'
               onClick={copyUrl}
             />
-          </section>
+          ) : (
+            <button
+              className='h-6 w-6 bg-[url("/copy.svg")] bg-contain bg-no-repeat invert'
+              onClick={copyUrl}
+            />
+          )}
         </section>
 
         <Schedule
