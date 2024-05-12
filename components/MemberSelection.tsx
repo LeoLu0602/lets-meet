@@ -6,13 +6,39 @@ interface Member {
   avatarUrl: string;
 }
 
-export default function MemberSelection({ members }: { members: Member[] }) {
+export default function MemberSelection({
+  members,
+  selectMember,
+  closeModal,
+}: {
+  members: Member[];
+  selectMember: Function;
+  closeModal: Function;
+}) {
+  function handleSelect(userId: string) {
+    selectMember(userId);
+    closeModal();
+  }
+
   return (
     <section className='h-96 w-80 bg-zinc-800/100'>
       <ul className='h-full w-full overflow-auto font-bold'>
-        <li className='border-b-2 p-4 text-2xl'>All</li>
+        <li
+          className='cursor-pointer border-b-2 p-4 text-2xl'
+          onClick={() => {
+            handleSelect('all');
+          }}
+        >
+          All
+        </li>
         {members.map(({ userId, userName, email, avatarUrl }) => (
-          <li className='border-b-2 p-4 last:border-b-0' key={userId}>
+          <li
+            className='cursor-pointer border-b-2 p-4 last:border-b-0'
+            key={userId}
+            onClick={() => {
+              handleSelect(userId);
+            }}
+          >
             <section className='flex items-center gap-2'>
               <img
                 src={avatarUrl}

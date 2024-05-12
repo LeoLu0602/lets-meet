@@ -37,6 +37,11 @@ export default function Page({ params }: { params: { groupId: string } }) {
   const [isUrlCopied, setIsUrlCopied] = useState<boolean>(false);
   const isUserSelected: boolean =
     user !== null && selectedMember !== null && selectedMember === user.userId;
+  const membersMap: Map<string, Member> = new Map(
+    members.map((member) => [member.userId, member])
+  );
+  const selectedAvatarUrl: string | null =
+    membersMap.get(selectedMember ?? '')?.avatarUrl ?? null;
 
   useEffect(() => {
     setUp();
@@ -312,12 +317,23 @@ export default function Page({ params }: { params: { groupId: string } }) {
         </section>
 
         <section className='flex h-12 w-full items-center justify-end gap-4 bg-zinc-800'>
-          <button
-            className='h-8 w-20 rounded-lg bg-sky-500 font-bold'
-            onClick={viewMembers}
-          >
-            All
-          </button>
+          {selectedMember === 'all' ? (
+            <button
+              className='h-8 w-12 rounded-lg bg-sky-500 font-bold'
+              onClick={viewMembers}
+            >
+              All
+            </button>
+          ) : (
+            <img
+              className={clsx('h-8 w-8 cursor-pointer rounded-full', {
+                invert: !selectedAvatarUrl,
+              })}
+              src={selectedAvatarUrl ?? '/person-circle.svg'}
+              onClick={viewMembers}
+            />
+          )}
+
           <section className='flex h-full items-center gap-4'>
             <section className='flex h-8 w-52 items-center overflow-auto whitespace-nowrap rounded-lg bg-slate-400 px-4 text-slate-700'>{`https://lets-meet-ivory.vercel.app/group/${params.groupId}`}</section>
             {isUrlCopied ? (
@@ -352,6 +368,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
             closeModal={closeModal}
             content={modalContent}
             members={members}
+            selectMember={selectMember}
           />
         )}
       </main>

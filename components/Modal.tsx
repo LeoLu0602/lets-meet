@@ -16,12 +16,14 @@ export default function Modal({
   closeModal,
   content,
   members,
+  selectMember,
 }: {
   email: string | null;
   handleLogout: Function;
   closeModal: Function;
   content: 'MemberSelection' | 'Logout' | '';
   members: Member[];
+  selectMember: Function;
 }) {
   return (
     <section
@@ -33,7 +35,11 @@ export default function Modal({
       }}
     >
       {content === 'MemberSelection' ? (
-        <MemberSelection members={members} />
+        <MemberSelection
+          members={members}
+          selectMember={selectMember}
+          closeModal={closeModal}
+        />
       ) : content === 'Logout' ? (
         <Logout
           email={email}
