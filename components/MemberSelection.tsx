@@ -29,7 +29,7 @@ export default function MemberSelection({
             handleSelect('all');
           }}
         >
-          All
+          All ({members.length})
         </li>
         {members.map(({ userId, userName, email, avatarUrl }) => (
           <li
