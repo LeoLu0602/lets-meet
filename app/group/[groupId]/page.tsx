@@ -148,11 +148,18 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }
 
   async function retrieveUser(): Promise<User | null> {
-    const {
-      data: { user },
-    }: { data: { user: User | null } } = await supabase.auth.getUser();
+    try {
+      const {
+        data: { user },
+      }: { data: { user: User | null } } = await supabase.auth.getUser();
 
-    return user;
+      return user;
+    } catch (error) {
+      console.error('Retrieve User Error: ', error);
+      alert('Retrieve User Error');
+
+      return null;
+    }
   }
 
   async function joinGroup(user: User, groupId: string) {
