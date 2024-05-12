@@ -2,16 +2,26 @@
 import MemberSelection from '@/components/MemberSelection';
 import Logout from '@/components/Logout';
 
+interface Member {
+  userId: string;
+  userName: string;
+  email: string;
+  availableTimeSlots: string[];
+  avatarUrl: string;
+}
+
 export default function Modal({
   email,
   handleLogout,
   closeModal,
   content,
+  members,
 }: {
   email: string | null;
   handleLogout: Function;
   closeModal: Function;
   content: 'MemberSelection' | 'Logout' | '';
+  members: Member[];
 }) {
   return (
     <section
@@ -23,7 +33,7 @@ export default function Modal({
       }}
     >
       {content === 'MemberSelection' ? (
-        <MemberSelection />
+        <MemberSelection members={members} />
       ) : content === 'Logout' ? (
         <Logout
           email={email}

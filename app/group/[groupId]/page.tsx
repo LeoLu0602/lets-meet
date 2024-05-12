@@ -351,6 +351,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
             handleLogout={handleLogout}
             closeModal={closeModal}
             content={modalContent}
+            members={members}
           />
         )}
       </main>
