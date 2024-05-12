@@ -56,7 +56,7 @@ export default function Schedule({
 
   return (
     <>
-      <section className='sticky left-0 top-24 z-10 flex h-12 w-full justify-around bg-zinc-800'>
+      <section className='sticky left-0 top-0 z-10 flex h-12 w-full justify-around bg-zinc-800'>
         {[' ', 'S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
           <span
             key={i}

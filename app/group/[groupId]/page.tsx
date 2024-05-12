@@ -30,6 +30,9 @@ export default function Page({ params }: { params: { groupId: string } }) {
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [isModalShown, setIsModalShown] = useState<boolean>(false);
+  const [modalContent, setModalContent] = useState<
+    'MemberSelection' | 'Logout' | ''
+  >('');
   const [isUrlCopied, setIsUrlCopied] = useState<boolean>(false);
   const isUserSelected: boolean =
     user !== null && selectedMember !== null && selectedMember === user.userId;
@@ -200,7 +203,8 @@ export default function Page({ params }: { params: { groupId: string } }) {
     }
   }
 
-  function openModal(): void {
+  function openModal(content: 'MemberSelection' | 'Logout'): void {
+    setModalContent(content);
     setIsModalShown(true);
   }
 
@@ -262,15 +266,28 @@ export default function Page({ params }: { params: { groupId: string } }) {
     setIsUrlCopied((val) => !val);
   }
 
+  function handleClickOnProfilePic() {
+    openModal('Logout');
+  }
+
+  function viewMembers() {
+    openModal('MemberSelection');
+  }
+
   return (
     <>
-      <main className='relative mx-auto max-w-[1024px] px-4 text-white'>
-        <section className='sticky left-0 top-0 z-10 flex h-12 w-full items-center justify-end bg-zinc-800 font-bold'>
+      <main
+        className={clsx('relative mx-auto max-w-[1024px] px-4 text-white', {
+          'h-screen overflow-hidden': isModalShown,
+          'h-auto': !isModalShown,
+        })}
+      >
+        <section className='flex h-12 w-full items-center justify-end bg-zinc-800 font-bold'>
           {user ? (
             <img
               src={user.avatarUrl}
               className='h-8 w-8 cursor-pointer rounded-full'
-              onClick={openModal}
+              onClick={handleClickOnProfilePic}
             />
           ) : (
             <button
@@ -282,8 +299,11 @@ export default function Page({ params }: { params: { groupId: string } }) {
           )}
         </section>
 
-        <section className='sticky left-0 top-12 z-10 flex h-12 w-full items-center justify-end gap-4 bg-zinc-800'>
-          <button className='h-8 w-20 rounded-lg bg-sky-500 font-bold'>
+        <section className='flex h-12 w-full items-center justify-end gap-4 bg-zinc-800'>
+          <button
+            className='h-8 w-20 rounded-lg bg-sky-500 font-bold'
+            onClick={viewMembers}
+          >
             All
           </button>
           <section className='flex h-full items-center gap-4'>
@@ -318,6 +338,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
             email={user?.email ?? null}
             handleLogout={handleLogout}
             closeModal={closeModal}
+            content={modalContent}
           />
         )}
       </main>
