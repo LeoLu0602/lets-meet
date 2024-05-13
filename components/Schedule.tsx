@@ -24,14 +24,25 @@ export default function Schedule({
     userId: string,
     groupId: string
   ): void {
-    const timeSlot: string = `${i},${j}`;
-    const isTimeSlotAvailable: boolean = new Set(availableTimeSlots).has(
-      timeSlot
-    );
-    const newAvailableTimeSlots: string[] = isTimeSlotAvailable
-      ? [...availableTimeSlots].filter((slot) => slot !== timeSlot)
-      : [...availableTimeSlots, timeSlot];
+    const availableTimeSlotsSet = new Set(availableTimeSlots);
 
+    if (j === 0) {
+      // row selection
+      for (let d = 1; d <= 7; d++) {
+        availableTimeSlotsSet.add(`${i},${d}`);
+      }
+    } else {
+      const timeSlot: string = `${i},${j}`;
+      const isTimeSlotAvailable: boolean = availableTimeSlotsSet.has(timeSlot);
+
+      if (isTimeSlotAvailable) {
+        availableTimeSlotsSet.delete(timeSlot);
+      } else {
+        availableTimeSlotsSet.add(timeSlot);
+      }
+    }
+
+    const newAvailableTimeSlots: string[] = Array.from(availableTimeSlotsSet);
     setAvailableTimeSlots(newAvailableTimeSlots);
     updateAvailableTimeSlots(newAvailableTimeSlots, userId, groupId);
   }
@@ -76,7 +87,7 @@ export default function Schedule({
               <div
                 key={j}
                 className={clsx(
-                  'relative h-full w-[12.5%] cursor-pointer border-r-2 border-t-2 first:cursor-default first:border-t-0',
+                  'relative h-full w-[12.5%] cursor-pointer border-r-2 border-t-2 first:border-t-0',
                   {
                     'bg-emerald-500': new Set(availableTimeSlots).has(
                       `${i},${j}`
@@ -85,7 +96,7 @@ export default function Schedule({
                   }
                 )}
                 onClick={() => {
-                  if (j > 0 && userId && isUserSelected) {
+                  if (userId && isUserSelected) {
                     handleClick(i, j, userId, groupId);
                   }
                 }}
