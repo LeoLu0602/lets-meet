@@ -17,7 +17,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 interface Member {
   userId: string;
-  userName: string;
+  username: string;
   email: string;
   availableTimeSlots: string[];
   avatarUrl: string;
@@ -106,7 +106,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
       setAvailableTimeSlots(allAvailableTimeSlots.get(user.id) ?? []);
       setUser({
         userId: user.id,
-        userName: user.user_metadata.name,
+        username: user.user_metadata.name,
         email: user.user_metadata.email,
         avatarUrl: user.user_metadata.avatar_url,
       });
@@ -139,14 +139,14 @@ export default function Page({ params }: { params: { groupId: string } }) {
       data?.map(
         ({
           user_id: userId,
-          user_name: userName,
+          user_name: username,
           email,
           available_time_slots: availableTimeSlots,
           avatar_url: avatarUrl,
         }) => {
           return {
             userId,
-            userName,
+            username,
             email,
             availableTimeSlots,
             avatarUrl,

@@ -4,7 +4,7 @@ import Logout from '@/components/Logout';
 
 interface Member {
   userId: string;
-  userName: string;
+  username: string;
   email: string;
   availableTimeSlots: string[];
   avatarUrl: string;

@@ -43,6 +43,7 @@ export default function Schedule({
     }
 
     const newAvailableTimeSlots: string[] = Array.from(availableTimeSlotsSet);
+    
     setAvailableTimeSlots(newAvailableTimeSlots);
     updateAvailableTimeSlots(newAvailableTimeSlots, userId, groupId);
   }
