@@ -100,6 +100,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
     );
 
     setMembers(members);
+    setSelectedMember('all');
 
     // user is logged in
     if (user) {
@@ -110,7 +111,6 @@ export default function Page({ params }: { params: { groupId: string } }) {
         email: user.user_metadata.email,
         avatarUrl: user.user_metadata.avatar_url,
       });
-      setSelectedMember('all');
 
       // user not in the group yet -> user joins the group
       if (!memberIds.has(user.id)) {
@@ -335,7 +335,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
           )}
 
           <section className='flex h-full items-center gap-4'>
-            <section className='flex h-8 w-52 items-center overflow-auto whitespace-nowrap rounded-lg bg-slate-400 px-4 text-slate-700'>{`https://lets-meet-ivory.vercel.app/group/${params.groupId}`}</section>
+            <span className='flex h-8 w-52 items-center overflow-auto whitespace-nowrap rounded-lg bg-zinc-400 px-4 text-slate-700'>{`https://lets-meet-ivory.vercel.app/group/${params.groupId}`}</span>
             {isUrlCopied ? (
               <button
                 className='flex h-6 w-6 items-center justify-center text-2xl text-emerald-500'
@@ -369,6 +369,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
             content={modalContent}
             members={members}
             selectMember={selectMember}
+            selectedMember={selectedMember}
           />
         )}
       </main>

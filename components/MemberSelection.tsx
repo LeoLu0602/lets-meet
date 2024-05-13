@@ -1,3 +1,6 @@
+'use client';
+import clsx from 'clsx';
+
 interface Member {
   userId: string;
   username: string;
@@ -10,10 +13,12 @@ export default function MemberSelection({
   members,
   selectMember,
   closeModal,
+  selectedMember,
 }: {
   members: Member[];
   selectMember: Function;
   closeModal: Function;
+  selectedMember: string | null;
 }) {
   function handleSelect(userId: string) {
     selectMember(userId);
@@ -21,10 +26,18 @@ export default function MemberSelection({
   }
 
   return (
-    <section className='h-96 w-80 bg-zinc-800/100'>
+    <section className='relative h-96 w-80 rounded-lg bg-zinc-800/100'>
+      <button
+        className='absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded bg-rose-500 text-xl font-bold'
+        onClick={() => {
+          closeModal();
+        }}
+      >
+        &#x2715;
+      </button>
       <ul className='h-full w-full overflow-auto font-bold'>
         <li
-          className='cursor-pointer border-b-2 p-4 text-2xl'
+          className='cursor-pointer p-4 text-2xl'
           onClick={() => {
             handleSelect('all');
           }}
@@ -33,17 +46,17 @@ export default function MemberSelection({
         </li>
         {[...members]
           .sort(({ username: username1 }, { username: username2 }) => {
-            if (username1 < username2) {
+            if (username1 <= username2) {
               return -1;
             } else {
               return 1;
             }
-
-            return 0;
           })
           .map(({ userId, username, email, avatarUrl }) => (
             <li
-              className='cursor-pointer border-b-2 p-4 last:border-b-0'
+              className={clsx('cursor-pointer p-4', {
+                'bg-sky-500': userId === selectedMember,
+              })}
               key={userId}
               onClick={() => {
                 handleSelect(userId);
