@@ -234,12 +234,6 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }
 
   function changeAvailableTimeSlots(selectedMember: string): void {
-    const allAvailableTimeSlots: Map<string, string[]> = new Map(
-      members.map(({ userId, availableTimeSlots }) => [
-        userId,
-        availableTimeSlots,
-      ])
-    );
     const newAllAvailableTimeSlots: string[] =
       selectedMember === 'all'
         ? Array.from(
@@ -249,7 +243,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
               )
             )
           )
-        : allAvailableTimeSlots.get(selectedMember) ?? [];
+        : membersMap.get(selectedMember)?.availableTimeSlots ?? [];
 
     setAvailableTimeSlots(newAllAvailableTimeSlots);
   }
