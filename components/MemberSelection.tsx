@@ -67,9 +67,13 @@ export default function MemberSelection({
                   src={avatarUrl}
                   className='h-6 w-6 cursor-pointer rounded-full'
                 />
-                <span className='text-2xl'>{username}</span>
+                <span className='overflow-hidden text-ellipsis whitespace-nowrap text-2xl'>
+                  {username}
+                </span>
               </section>
-              <section>{email}</section>
+              <section className='overflow-hidden text-ellipsis whitespace-nowrap'>
+                {email}
+              </section>
             </li>
           ))}
       </ul>

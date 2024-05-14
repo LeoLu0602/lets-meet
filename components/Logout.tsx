@@ -9,9 +9,11 @@ export default function MemberSelection({
 }) {
   return (
     <section className='flex h-60 w-80 flex-col items-center justify-center gap-8 rounded-lg bg-zinc-800/100 font-bold'>
-      <h2>👋 {email ?? ''}</h2>
+      <h2 className='w-11/12 overflow-hidden text-ellipsis whitespace-nowrap text-center text-xl'>
+        👋 {email ?? ''}
+      </h2>
       <button
-        className='text-sky-500'
+        className='text-xl text-sky-500'
         onClick={() => {
           handleLogout();
         }}
@@ -19,7 +21,7 @@ export default function MemberSelection({
         Log Out
       </button>
       <button
-        className='text-rose-500'
+        className='text-xl text-rose-500'
         onClick={() => {
           closeModal();
         }}
