@@ -23,25 +23,39 @@ interface Member {
   avatarUrl: string;
 }
 
+type ModalOptions = 'MemberSelection' | 'Logout' | '';
+
 export default function Page({ params }: { params: { groupId: string } }) {
+  /*
+    timeSlotsAvailability: Map<string, number>
+  
+    key: an available time slot in at least one member's availableTimeSlots
+    value: the number of members who DON'T have [key] in their availableTimeSlots
+  */
+
   const [user, setUser] = useState<Omit<Member, 'availableTimeSlots'> | null>(
     null
   );
   const [members, setMembers] = useState<Member[]>([]);
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
+  const [timeSlotsAvailability, setTimeSlotsAvailability] = useState<
+    Map<string, number>
+  >(new Map());
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [isModalShown, setIsModalShown] = useState<boolean>(false);
-  const [modalContent, setModalContent] = useState<
-    'MemberSelection' | 'Logout' | ''
-  >('');
+  const [modalContent, setModalContent] = useState<ModalOptions>('');
   const [isUrlCopied, setIsUrlCopied] = useState<boolean>(false);
   const isUserSelected: boolean =
     user !== null && selectedMember !== null && selectedMember === user.userId;
+  const isAllSelected: boolean = selectedMember === 'all';
   const membersMap: Map<string, Member> = new Map(
     members.map((member) => [member.userId, member])
   );
   const selectedAvatarUrl: string | null =
     membersMap.get(selectedMember ?? '')?.avatarUrl ?? null;
+  const almostAvailableTimeSlots: string[] = Array.from(timeSlotsAvailability)
+    .filter((pair) => pair[1] === 1)
+    .map((pair) => pair[0]);
 
   useEffect(() => {
     setUp();
@@ -71,7 +85,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
 
   useEffect(() => {
     if (selectedMember) {
-      changeAvailableTimeSlots(selectedMember);
+      updateAvailableTimeSlots(selectedMember);
     }
   }, [selectedMember]);
 
@@ -82,9 +96,10 @@ export default function Page({ params }: { params: { groupId: string } }) {
       
       Doing so could slow down changes and results in poor user experience.
     */
+    updateTimeSlotsAvailability();
 
     if (selectedMember && user && selectedMember !== user.userId) {
-      changeAvailableTimeSlots(selectedMember);
+      updateAvailableTimeSlots(selectedMember);
     }
   }, [members]);
 
@@ -233,7 +248,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
     setSelectedMember(memberId);
   }
 
-  function changeAvailableTimeSlots(selectedMember: string): void {
+  function updateAvailableTimeSlots(selectedMember: string): void {
     const newAllAvailableTimeSlots: string[] =
       selectedMember === 'all'
         ? Array.from(
@@ -265,6 +280,22 @@ export default function Page({ params }: { params: { groupId: string } }) {
     }
 
     return combinedSet;
+  }
+
+  function updateTimeSlotsAvailability(): void {
+    const newTimeSlotsAvailability: Map<string, number> = new Map();
+    const numberOfMembers: number = members.length;
+
+    for (let { availableTimeSlots } of members) {
+      for (let availableTimeSlot of availableTimeSlots) {
+        const count: number =
+          newTimeSlotsAvailability.get(availableTimeSlot) ?? numberOfMembers;
+
+        newTimeSlotsAvailability.set(availableTimeSlot, count - 1);
+      }
+    }
+
+    setTimeSlotsAvailability(newTimeSlotsAvailability);
   }
 
   async function copyUrl() {
@@ -353,6 +384,8 @@ export default function Page({ params }: { params: { groupId: string } }) {
           availableTimeSlots={availableTimeSlots}
           setAvailableTimeSlots={setAvailableTimeSlots}
           isUserSelected={isUserSelected}
+          isAllSelected={isAllSelected}
+          almostAvailableTimeSlots={almostAvailableTimeSlots}
         />
 
         {isModalShown && (

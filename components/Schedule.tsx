@@ -10,6 +10,8 @@ export default function Schedule({
   availableTimeSlots,
   setAvailableTimeSlots,
   isUserSelected,
+  isAllSelected,
+  almostAvailableTimeSlots,
 }: {
   supabase: SupabaseClient<any, 'public', any>;
   userId: string | null;
@@ -17,7 +19,14 @@ export default function Schedule({
   availableTimeSlots: string[];
   setAvailableTimeSlots: Function;
   isUserSelected: boolean;
+  isAllSelected: boolean;
+  almostAvailableTimeSlots: string[];
 }) {
+  const availableTimeSlotsSet: Set<string> = new Set(availableTimeSlots);
+  const almostAvailableTimeSlotsSet: Set<string> = new Set(
+    almostAvailableTimeSlots
+  );
+
   function handleClick(
     i: number,
     j: number,
@@ -90,9 +99,10 @@ export default function Schedule({
                 className={clsx(
                   'relative h-full w-[12.5%] cursor-pointer border-r-2 border-t-2 first:border-t-0',
                   {
-                    'bg-emerald-500': new Set(availableTimeSlots).has(
-                      `${i},${j}`
-                    ),
+                    'bg-emerald-500': availableTimeSlotsSet.has(`${i},${j}`),
+                    'bg-sky-500':
+                      isAllSelected &&
+                      almostAvailableTimeSlotsSet.has(`${i},${j}`),
                     'border-b-2': i === 23 && j > 0,
                   }
                 )}
