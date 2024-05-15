@@ -37,29 +37,27 @@ export default function Page({ params }: { params: { groupId: string } }) {
     null
   );
   const [members, setMembers] = useState<Member[]>([]);
-  const [selectedMember, setSelectedMember] = useState<string | null>(null);
+  const [selectedMember, setSelectedMember] = useState<string>('all'); // selected member's userId
   const [timeSlotsAvailability, setTimeSlotsAvailability] = useState<
     Map<string, number>
   >(new Map());
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]); // green time slots shown on screen
   const [isModalShown, setIsModalShown] = useState<boolean>(false);
   const [modalContent, setModalContent] = useState<ModalOptions>('');
   const [isUrlCopied, setIsUrlCopied] = useState<boolean>(false);
-  const isUserSelected: boolean =
-    user !== null && selectedMember !== null && selectedMember === user.userId;
-  const isAllSelected: boolean = selectedMember === 'all';
   const membersMap: Map<string, Member> = new Map(
     members.map((member) => [member.userId, member])
   );
   const selectedAvatarUrl: string | null =
-    membersMap.get(selectedMember ?? '')?.avatarUrl ?? null;
+    membersMap.get(selectedMember)?.avatarUrl ?? null;
   const almostAvailableTimeSlots: string[] = Array.from(timeSlotsAvailability)
     .filter((pair) => pair[1] === 1)
-    .map((pair) => pair[0]);
+    .map((pair) => pair[0]); // blue time slots shown on screen (one member is absent)
 
   useEffect(() => {
     setUp();
 
+    // listen to changes in group_user table
     const channel = supabase
       .channel('custom-filter-channel')
       .on(
@@ -90,15 +88,14 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }, [selectedMember]);
 
   useEffect(() => {
+    updateTimeSlotsAvailability();
     /*
       When a user is viewing/changing his/her own schedule,
       changes in DB should not affect availableTimeSlots.
       
       Doing so could slow down changes and results in poor user experience.
     */
-    updateTimeSlotsAvailability();
-
-    if (selectedMember && user && selectedMember !== user.userId) {
+    if (selectedMember !== user?.userId) {
       updateAvailableTimeSlots(selectedMember);
     }
   }, [members]);
@@ -244,42 +241,22 @@ export default function Page({ params }: { params: { groupId: string } }) {
     setIsModalShown(false);
   }
 
-  function selectMember(memberId: string | null): void {
+  function selectMember(memberId: string): void {
     setSelectedMember(memberId);
   }
 
   function updateAvailableTimeSlots(selectedMember: string): void {
-    const newAllAvailableTimeSlots: string[] =
-      selectedMember === 'all'
-        ? Array.from(
-            combineSets(
-              members.map(
-                ({ availableTimeSlots }) => new Set(availableTimeSlots)
-              )
-            )
-          )
-        : membersMap.get(selectedMember)?.availableTimeSlots ?? [];
-
-    setAvailableTimeSlots(newAllAvailableTimeSlots);
-  }
-
-  function combineSets(sets: Set<string>[]): Set<string> {
-    let combinedSet: Set<string> = new Set();
-
-    for (let i = 0; i < sets.length; i++) {
-      const nextSet: Set<string> = sets[i];
-
-      if (i === 0) {
-        combinedSet = sets[0];
-        continue;
-      }
-
-      combinedSet = new Set(
-        Array.from(combinedSet).filter((val: string) => nextSet.has(val))
+    if (selectedMember === 'all') {
+      setAvailableTimeSlots(
+        Array.from(timeSlotsAvailability)
+          .filter((pair) => pair[1] === 0)
+          .map((pair) => pair[0])
+      );
+    } else {
+      setAvailableTimeSlots(
+        membersMap.get(selectedMember)?.availableTimeSlots ?? []
       );
     }
-
-    return combinedSet;
   }
 
   function updateTimeSlotsAvailability(): void {
@@ -327,8 +304,8 @@ export default function Page({ params }: { params: { groupId: string } }) {
         <section className='flex h-12 w-full items-center justify-end bg-zinc-800 font-bold'>
           {user ? (
             <img
-              src={user.avatarUrl}
               className='h-8 w-8 cursor-pointer rounded-full'
+              src={user.avatarUrl}
               onClick={handleClickOnProfilePic}
             />
           ) : (
@@ -382,10 +359,10 @@ export default function Page({ params }: { params: { groupId: string } }) {
           userId={user?.userId ?? null}
           groupId={params.groupId}
           availableTimeSlots={availableTimeSlots}
-          setAvailableTimeSlots={setAvailableTimeSlots}
-          isUserSelected={isUserSelected}
-          isAllSelected={isAllSelected}
           almostAvailableTimeSlots={almostAvailableTimeSlots}
+          setAvailableTimeSlots={setAvailableTimeSlots}
+          isUserSelected={selectedMember === user?.userId}
+          isAllSelected={selectedMember === 'all'}
         />
 
         {isModalShown && (

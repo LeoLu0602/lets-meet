@@ -8,19 +8,19 @@ export default function Schedule({
   userId,
   groupId,
   availableTimeSlots,
+  almostAvailableTimeSlots,
   setAvailableTimeSlots,
   isUserSelected,
   isAllSelected,
-  almostAvailableTimeSlots,
 }: {
   supabase: SupabaseClient<any, 'public', any>;
   userId: string | null;
   groupId: string;
   availableTimeSlots: string[];
+  almostAvailableTimeSlots: string[];
   setAvailableTimeSlots: Function;
   isUserSelected: boolean;
   isAllSelected: boolean;
-  almostAvailableTimeSlots: string[];
 }) {
   const availableTimeSlotsSet: Set<string> = new Set(availableTimeSlots);
   const almostAvailableTimeSlotsSet: Set<string> = new Set(
