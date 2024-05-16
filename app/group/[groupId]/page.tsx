@@ -26,6 +26,21 @@ interface Member {
 type ModalOptions = 'MemberSelection' | 'Logout' | '';
 
 export default function Page({ params }: { params: { groupId: string } }) {
+  const [user, setUser] = useState<Omit<Member, 'availableTimeSlots'> | null>(
+    null
+  );
+
+  const [members, setMembers] = useState<Member[]>([]);
+  const [selectedMember, setSelectedMember] = useState<string>('all'); // selected member's userId
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]); // green time slots shown on screen
+  const [isModalShown, setIsModalShown] = useState<boolean>(false);
+  const [modalContent, setModalContent] = useState<ModalOptions>('');
+  const [isUrlCopied, setIsUrlCopied] = useState<boolean>(false);
+
+  const membersMap: Map<string, Member> = new Map(
+    members.map((member) => [member.userId, member])
+  );
+
   /*
     timeSlotsAvailability: Map<string, number>
   
@@ -33,23 +48,12 @@ export default function Page({ params }: { params: { groupId: string } }) {
     value: the number of members who DON'T have [key] in their availableTimeSlots
   */
 
-  const [user, setUser] = useState<Omit<Member, 'availableTimeSlots'> | null>(
-    null
-  );
-  const [members, setMembers] = useState<Member[]>([]);
-  const [selectedMember, setSelectedMember] = useState<string>('all'); // selected member's userId
-  const [timeSlotsAvailability, setTimeSlotsAvailability] = useState<
-    Map<string, number>
-  >(new Map());
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]); // green time slots shown on screen
-  const [isModalShown, setIsModalShown] = useState<boolean>(false);
-  const [modalContent, setModalContent] = useState<ModalOptions>('');
-  const [isUrlCopied, setIsUrlCopied] = useState<boolean>(false);
-  const membersMap: Map<string, Member> = new Map(
-    members.map((member) => [member.userId, member])
-  );
+  const timeSlotsAvailability: Map<string, number> =
+    getTimeSlotsAvailability(members);
+
   const selectedAvatarUrl: string | null =
     membersMap.get(selectedMember)?.avatarUrl ?? null;
+
   const almostAvailableTimeSlots: string[] = Array.from(timeSlotsAvailability)
     .filter((pair) => pair[1] === 1)
     .map((pair) => pair[0]); // blue time slots shown on screen (one member is absent)
@@ -88,10 +92,6 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }, [selectedMember]);
 
   useEffect(() => {
-    updateTimeSlotsAvailability();
-  }, [members]);
-
-  useEffect(() => {
     /*
       When a user is viewing/changing his/her own schedule,
       changes in DB should not affect availableTimeSlots.
@@ -101,7 +101,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
     if (selectedMember !== user?.userId) {
       updateAvailableTimeSlots(selectedMember);
     }
-  }, [timeSlotsAvailability]);
+  }, [members]);
 
   async function setUp(): Promise<void> {
     const members: Member[] = await getMembers(params.groupId);
@@ -261,7 +261,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
     }
   }
 
-  function updateTimeSlotsAvailability(): void {
+  function getTimeSlotsAvailability(members: Member[]): Map<string, number> {
     const newTimeSlotsAvailability: Map<string, number> = new Map();
     const numberOfMembers: number = members.length;
 
@@ -274,7 +274,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
       }
     }
 
-    setTimeSlotsAvailability(newTimeSlotsAvailability);
+    return newTimeSlotsAvailability;
   }
 
   async function copyUrl() {
