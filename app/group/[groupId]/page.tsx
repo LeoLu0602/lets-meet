@@ -89,6 +89,9 @@ export default function Page({ params }: { params: { groupId: string } }) {
 
   useEffect(() => {
     updateTimeSlotsAvailability();
+  }, [members]);
+
+  useEffect(() => {
     /*
       When a user is viewing/changing his/her own schedule,
       changes in DB should not affect availableTimeSlots.
@@ -98,7 +101,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
     if (selectedMember !== user?.userId) {
       updateAvailableTimeSlots(selectedMember);
     }
-  }, [members]);
+  }, [timeSlotsAvailability]);
 
   async function setUp(): Promise<void> {
     const members: Member[] = await getMembers(params.groupId);
@@ -227,7 +230,6 @@ export default function Page({ params }: { params: { groupId: string } }) {
       alert('Logout Error');
     } else {
       setUser(null);
-      setAvailableTimeSlots([]);
       closeModal();
     }
   }
