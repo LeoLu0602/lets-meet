@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
 import {
   AuthError,
   PostgrestError,
   User,
   createClient,
 } from '@supabase/supabase-js';
+
 import clsx from 'clsx';
 import Schedule from '@/components/Schedule';
 import Modal from '@/components/Modal';
@@ -19,8 +21,8 @@ interface Member {
   userId: string;
   username: string;
   email: string;
-  availableTimeSlots: string[];
   avatarUrl: string;
+  availableTimeSlots: string[];
 }
 
 type ModalOptions = 'MemberSelection' | 'Logout' | '';
@@ -31,8 +33,10 @@ export default function Page({ params }: { params: { groupId: string } }) {
   );
 
   const [members, setMembers] = useState<Member[]>([]);
-  const [selectedMember, setSelectedMember] = useState<string>('all'); // selected member's userId
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]); // green time slots shown on screen
+
+  // selected member's userId ('all' for combined schedule)
+  const [selectedMember, setSelectedMember] = useState<string>('all');
+
   const [isModalShown, setIsModalShown] = useState<boolean>(false);
   const [modalContent, setModalContent] = useState<ModalOptions>('');
   const [isUrlCopied, setIsUrlCopied] = useState<boolean>(false);
@@ -40,6 +44,9 @@ export default function Page({ params }: { params: { groupId: string } }) {
   const membersMap: Map<string, Member> = new Map(
     members.map((member) => [member.userId, member])
   );
+
+  const selectedAvatarUrl: string | null =
+    membersMap.get(selectedMember)?.avatarUrl ?? null;
 
   /*
     timeSlotsAvailability: Map<string, number>
@@ -51,12 +58,20 @@ export default function Page({ params }: { params: { groupId: string } }) {
   const timeSlotsAvailability: Map<string, number> =
     getTimeSlotsAvailability(members);
 
-  const selectedAvatarUrl: string | null =
-    membersMap.get(selectedMember)?.avatarUrl ?? null;
+  const combinedAvailableTimeSlots: string[] = Array.from(timeSlotsAvailability)
+    .filter((pair) => pair[1] === 0)
+    .map((pair) => pair[0]);
 
+  // blue time slots shown on screen (only one member is absent)
   const almostAvailableTimeSlots: string[] = Array.from(timeSlotsAvailability)
     .filter((pair) => pair[1] === 1)
-    .map((pair) => pair[0]); // blue time slots shown on screen (one member is absent)
+    .map((pair) => pair[0]);
+
+  // green time slots shown on screen
+  const availableTimeSlots: string[] =
+    selectedMember !== 'all'
+      ? membersMap.get(selectedMember)?.availableTimeSlots ?? []
+      : combinedAvailableTimeSlots;
 
   useEffect(() => {
     setUp();
@@ -85,41 +100,16 @@ export default function Page({ params }: { params: { groupId: string } }) {
     };
   }, []);
 
-  useEffect(() => {
-    if (selectedMember) {
-      updateAvailableTimeSlots(selectedMember);
-    }
-  }, [selectedMember]);
-
-  useEffect(() => {
-    /*
-      When a user is viewing/changing his/her own schedule,
-      changes in DB should not affect availableTimeSlots.
-      
-      Doing so could slow down changes and results in poor user experience.
-    */
-    if (selectedMember !== user?.userId) {
-      updateAvailableTimeSlots(selectedMember);
-    }
-  }, [members]);
-
   async function setUp(): Promise<void> {
     const members: Member[] = await getMembers(params.groupId);
     const user: User | null = await retrieveUser();
     const memberIds: Set<string> = new Set(members.map(({ userId }) => userId));
-    const allAvailableTimeSlots: Map<string, string[]> = new Map(
-      members.map(({ userId, availableTimeSlots }) => [
-        userId,
-        availableTimeSlots,
-      ])
-    );
 
     setMembers(members);
     setSelectedMember('all');
 
     // user is logged in
     if (user) {
-      setAvailableTimeSlots(allAvailableTimeSlots.get(user.id) ?? []);
       setUser({
         userId: user.id,
         username: user.user_metadata.name,
@@ -144,8 +134,8 @@ export default function Page({ params }: { params: { groupId: string } }) {
       .eq('group_id', groupId);
 
     if (error) {
-      console.error('Retrieve Group User Error: ', error);
-      alert('Retrieve Group User Error');
+      console.error('Get Members Error: ', error);
+      alert('Get Members Error');
 
       return [];
     }
@@ -156,15 +146,15 @@ export default function Page({ params }: { params: { groupId: string } }) {
           user_id: userId,
           user_name: username,
           email,
-          available_time_slots: availableTimeSlots,
           avatar_url: avatarUrl,
+          available_time_slots: availableTimeSlots,
         }) => {
           return {
             userId,
             username,
             email,
-            availableTimeSlots,
             avatarUrl,
+            availableTimeSlots,
           };
         }
       ) ?? []
@@ -186,7 +176,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
     }
   }
 
-  async function joinGroup(user: User, groupId: string) {
+  async function joinGroup(user: User, groupId: string): Promise<void> {
     const { error }: { error: PostgrestError | null } = await supabase
       .from('group_user')
       .insert([
@@ -195,8 +185,8 @@ export default function Page({ params }: { params: { groupId: string } }) {
           user_id: user.id,
           user_name: user.user_metadata.name,
           email: user.user_metadata.email,
-          available_time_slots: [],
           avatar_url: user.user_metadata.avatar_url,
+          available_time_slots: [],
         },
       ]);
 
@@ -247,20 +237,6 @@ export default function Page({ params }: { params: { groupId: string } }) {
     setSelectedMember(memberId);
   }
 
-  function updateAvailableTimeSlots(selectedMember: string): void {
-    if (selectedMember === 'all') {
-      setAvailableTimeSlots(
-        Array.from(timeSlotsAvailability)
-          .filter((pair) => pair[1] === 0)
-          .map((pair) => pair[0])
-      );
-    } else {
-      setAvailableTimeSlots(
-        membersMap.get(selectedMember)?.availableTimeSlots ?? []
-      );
-    }
-  }
-
   function getTimeSlotsAvailability(members: Member[]): Map<string, number> {
     const newTimeSlotsAvailability: Map<string, number> = new Map();
     const numberOfMembers: number = members.length;
@@ -277,7 +253,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
     return newTimeSlotsAvailability;
   }
 
-  async function copyUrl() {
+  async function copyUrl(): Promise<void> {
     if (!isUrlCopied) {
       await navigator.clipboard.writeText(
         `https://lets-meet-ivory.vercel.app/group/${params.groupId}`
@@ -362,7 +338,6 @@ export default function Page({ params }: { params: { groupId: string } }) {
           groupId={params.groupId}
           availableTimeSlots={availableTimeSlots}
           almostAvailableTimeSlots={almostAvailableTimeSlots}
-          setAvailableTimeSlots={setAvailableTimeSlots}
           isUserSelected={selectedMember === user?.userId}
           isAllSelected={selectedMember === 'all'}
         />

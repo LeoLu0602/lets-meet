@@ -9,7 +9,6 @@ export default function Schedule({
   groupId,
   availableTimeSlots,
   almostAvailableTimeSlots,
-  setAvailableTimeSlots,
   isUserSelected,
   isAllSelected,
 }: {
@@ -18,7 +17,6 @@ export default function Schedule({
   groupId: string;
   availableTimeSlots: string[];
   almostAvailableTimeSlots: string[];
-  setAvailableTimeSlots: Function;
   isUserSelected: boolean;
   isAllSelected: boolean;
 }) {
@@ -51,10 +49,11 @@ export default function Schedule({
       }
     }
 
-    const newAvailableTimeSlots: string[] = Array.from(availableTimeSlotsSet);
-
-    setAvailableTimeSlots(newAvailableTimeSlots);
-    updateAvailableTimeSlots(newAvailableTimeSlots, userId, groupId);
+    updateAvailableTimeSlots(
+      Array.from(availableTimeSlotsSet),
+      userId,
+      groupId
+    );
   }
 
   async function updateAvailableTimeSlots(
