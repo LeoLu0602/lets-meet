@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
 import clsx from 'clsx';
 
@@ -20,10 +21,32 @@ export default function Schedule({
   isUserSelected: boolean;
   isAllSelected: boolean;
 }) {
-  const availableTimeSlotsSet: Set<string> = new Set(availableTimeSlots);
+  /* 
+    greenSlots vs availableTimeSlots
+
+    greenSlots: available time slots for the CLIENT side (what users see)
+    availableTimeSlots: available time slots for the SERVER side
+  */
+
+  const [greenSlots, setGreenSlots] = useState<string[]>([]);
+
+  const greenSlotsSet = new Set(greenSlots);
+
   const almostAvailableTimeSlotsSet: Set<string> = new Set(
     almostAvailableTimeSlots
   );
+
+  useEffect(() => {
+    /*
+      When a user is viewing his/her own schedule, changes in DB should not affect greenSlots.
+      Doing so results in poor UX.
+    */
+
+    if (!isUserSelected) {
+      // react to changes in DB
+      setGreenSlots(availableTimeSlots);
+    }
+  }, [availableTimeSlots]);
 
   function handleClick(
     i: number,
@@ -31,29 +54,29 @@ export default function Schedule({
     userId: string,
     groupId: string
   ): void {
-    const availableTimeSlotsSet = new Set(availableTimeSlots);
+    const newGreenSlotsSet: Set<string> = new Set(greenSlots);
 
     if (j === 0) {
       // row selection
       for (let d = 1; d <= 7; d++) {
-        availableTimeSlotsSet.add(`${i},${d}`);
+        newGreenSlotsSet.add(`${i},${d}`);
       }
     } else {
       const timeSlot: string = `${i},${j}`;
-      const isTimeSlotAvailable: boolean = availableTimeSlotsSet.has(timeSlot);
+      const isTimeSlotAvailable: boolean = newGreenSlotsSet.has(timeSlot);
 
       if (isTimeSlotAvailable) {
-        availableTimeSlotsSet.delete(timeSlot);
+        newGreenSlotsSet.delete(timeSlot);
       } else {
-        availableTimeSlotsSet.add(timeSlot);
+        newGreenSlotsSet.add(timeSlot);
       }
     }
 
-    updateAvailableTimeSlots(
-      Array.from(availableTimeSlotsSet),
-      userId,
-      groupId
-    );
+    const newGreenSlots: string[] = Array.from(newGreenSlotsSet);
+
+    // update available time slots on the client side first and on the server side later
+    setGreenSlots(newGreenSlots);
+    updateAvailableTimeSlots(newGreenSlots, userId, groupId);
   }
 
   async function updateAvailableTimeSlots(
@@ -79,10 +102,10 @@ export default function Schedule({
       <section className='sticky left-0 top-0 z-10 flex h-12 w-full justify-around bg-zinc-800'>
         {[' ', 'S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
           <span
-            key={i}
             className={clsx(
               'flex h-full w-[12.5%] items-center justify-center font-bold'
             )}
+            key={i}
           >
             {day}
           </span>
@@ -91,20 +114,20 @@ export default function Schedule({
 
       <section className='my-4'>
         {new Array(24).fill(null).map((row, i) => (
-          <div key={i} className='flex h-16 w-full'>
+          <section key={i} className='flex h-16 w-full'>
             {new Array(8).fill(null).map((col, j) => (
-              <div
-                key={j}
+              <section
                 className={clsx(
                   'relative h-full w-[12.5%] cursor-pointer border-r-2 border-t-2 first:border-t-0',
                   {
-                    'bg-emerald-500': availableTimeSlotsSet.has(`${i},${j}`),
+                    'bg-emerald-500': greenSlotsSet.has(`${i},${j}`),
                     'bg-sky-500':
                       isAllSelected &&
                       almostAvailableTimeSlotsSet.has(`${i},${j}`),
                     'border-b-2': i === 23 && j > 0,
                   }
                 )}
+                key={j}
                 onClick={() => {
                   if (userId && isUserSelected) {
                     handleClick(i, j, userId, groupId);
@@ -116,9 +139,9 @@ export default function Schedule({
                     {i.toString().padStart(2, '0')}:00
                   </span>
                 )}
-              </div>
+              </section>
             ))}
-          </div>
+          </section>
         ))}
       </section>
     </>
