@@ -31,8 +31,12 @@ export default function Page({ params }: { params: { groupId: string } }) {
   /*
     greenSlots vs availableTimeSlots
 
-    greenSlots: available time slots for the CLIENT side (what users see)
-    availableTimeSlots: available time slots for the SERVER side
+    greenSlots: CLIENT side's available time slots
+    availableTimeSlots: SERVER side's available time slots
+
+    Updates on the server side from clicking on time slots don't happen immediately.
+    However, users want immediate changes on screen.
+    Therefore, greenSlots is used to enable immediate changes.
   */
 
   const [user, setUser] = useState<Omit<Member, 'availableTimeSlots'> | null>(
@@ -131,10 +135,10 @@ export default function Page({ params }: { params: { groupId: string } }) {
     const memberIds: Set<string> = new Set(members.map(({ userId }) => userId));
 
     setMembers(members);
-    setSelectedMember('all');
 
     // user is logged in
     if (user) {
+      setSelectedMember(user.id);
       setUser({
         userId: user.id,
         username: user.user_metadata.name,
