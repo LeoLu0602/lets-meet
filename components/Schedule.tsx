@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
 import clsx from 'clsx';
 
@@ -8,52 +7,30 @@ export default function Schedule({
   supabase,
   userId,
   groupId,
-  availableTimeSlots,
-  almostAvailableTimeSlots,
+  blueSlots,
+  greenSlots,
+  setGreenSlots,
   isUserSelected,
   isAllSelected,
 }: {
   supabase: SupabaseClient<any, 'public', any>;
   userId: string | null;
   groupId: string;
-  availableTimeSlots: string[];
-  almostAvailableTimeSlots: string[];
+  blueSlots: string[];
+  greenSlots: string[];
+  setGreenSlots: Function;
   isUserSelected: boolean;
   isAllSelected: boolean;
 }) {
-  /* 
-    greenSlots vs availableTimeSlots
-
-    greenSlots: available time slots for the CLIENT side (what users see)
-    availableTimeSlots: available time slots for the SERVER side
-  */
-
-  const [greenSlots, setGreenSlots] = useState<string[]>([]);
-
   const greenSlotsSet = new Set(greenSlots);
+  const blueSlotsSet: Set<string> = new Set(blueSlots);
 
-  const almostAvailableTimeSlotsSet: Set<string> = new Set(
-    almostAvailableTimeSlots
-  );
-
-  useEffect(() => {
-    /*
-      When a user is viewing his/her own schedule, changes in DB should not affect greenSlots.
-      Doing so results in poor UX.
-    */
-
-    if (!isUserSelected) {
-      // react to changes in DB
-      setGreenSlots(availableTimeSlots);
-    }
-  }, [availableTimeSlots]);
-
-  function handleClick(
+  async function handleClick(
     i: number,
     j: number,
     userId: string,
     groupId: string
-  ): void {
+  ): Promise<void> {
     const newGreenSlotsSet: Set<string> = new Set(greenSlots);
 
     if (j === 0) {
@@ -76,7 +53,25 @@ export default function Schedule({
 
     // update available time slots on the client side first and on the server side later
     setGreenSlots(newGreenSlots);
-    updateAvailableTimeSlots(newGreenSlots, userId, groupId);
+    await updateAvailableTimeSlots(newGreenSlots, userId, groupId);
+  }
+
+  async function handleColumnSelection(
+    col: number,
+    userId: string,
+    groupId: string
+  ): Promise<void> {
+    const newGreenSlotsSet: Set<string> = new Set(greenSlots);
+
+    for (let i = 0; i < 24; i++) {
+      newGreenSlotsSet.add(`${i},${col}`);
+    }
+
+    const newGreenSlots: string[] = Array.from(newGreenSlotsSet);
+
+    // update available time slots on the client side first and on the server side later
+    setGreenSlots(newGreenSlots);
+    await updateAvailableTimeSlots(newGreenSlots, userId, groupId);
   }
 
   async function updateAvailableTimeSlots(
@@ -103,9 +98,15 @@ export default function Schedule({
         {[' ', 'S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
           <span
             className={clsx(
-              'flex h-full w-[12.5%] items-center justify-center font-bold'
+              'flex h-full w-[12.5%] items-center justify-center font-bold',
+              { 'cursor-pointer': i > 0 }
             )}
             key={i}
+            onClick={() => {
+              if (userId && isUserSelected && i > 0) {
+                handleColumnSelection(i, userId, groupId);
+              }
+            }}
           >
             {day}
           </span>
@@ -122,8 +123,7 @@ export default function Schedule({
                   {
                     'bg-emerald-500': greenSlotsSet.has(`${i},${j}`),
                     'bg-sky-500':
-                      isAllSelected &&
-                      almostAvailableTimeSlotsSet.has(`${i},${j}`),
+                      isAllSelected && blueSlotsSet.has(`${i},${j}`),
                     'border-b-2': i === 23 && j > 0,
                   }
                 )}

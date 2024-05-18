@@ -28,6 +28,13 @@ interface Member {
 type ModalOptions = 'MemberSelection' | 'Logout' | '';
 
 export default function Page({ params }: { params: { groupId: string } }) {
+  /*
+    greenSlots vs availableTimeSlots
+
+    greenSlots: available time slots for the CLIENT side (what users see)
+    availableTimeSlots: available time slots for the SERVER side
+  */
+
   const [user, setUser] = useState<Omit<Member, 'availableTimeSlots'> | null>(
     null
   );
@@ -38,8 +45,12 @@ export default function Page({ params }: { params: { groupId: string } }) {
   const [selectedMember, setSelectedMember] = useState<string>('all');
 
   const [isModalShown, setIsModalShown] = useState<boolean>(false);
+
   const [modalContent, setModalContent] = useState<ModalOptions>('');
+
   const [isUrlCopied, setIsUrlCopied] = useState<boolean>(false);
+
+  const [greenSlots, setGreenSlots] = useState<string[]>([]);
 
   const membersMap: Map<string, Member> = new Map(
     members.map((member) => [member.userId, member])
@@ -48,7 +59,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
   const selectedAvatarUrl: string | null =
     membersMap.get(selectedMember)?.avatarUrl ?? null;
 
-  /*
+  /*    
     timeSlotsAvailability: Map<string, number>
   
     key: an available time slot in at least one member's availableTimeSlots
@@ -67,7 +78,6 @@ export default function Page({ params }: { params: { groupId: string } }) {
     .filter((pair) => pair[1] === 1)
     .map((pair) => pair[0]);
 
-  // green time slots shown on screen
   const availableTimeSlots: string[] =
     selectedMember !== 'all'
       ? membersMap.get(selectedMember)?.availableTimeSlots ?? []
@@ -99,6 +109,21 @@ export default function Page({ params }: { params: { groupId: string } }) {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  useEffect(() => {
+    setGreenSlots(availableTimeSlots);
+  }, [selectedMember]);
+
+  useEffect(() => {
+    /*
+      When a user is viewing his/her own schedule,
+      changes in DB should not update greenSlots.
+      Doing so would result in poor user experience.
+    */
+    if (selectedMember !== user?.userId) {
+      setGreenSlots(availableTimeSlots);
+    }
+  }, [members]);
 
   async function setUp(): Promise<void> {
     const members: Member[] = await getMembers(params.groupId);
@@ -336,8 +361,9 @@ export default function Page({ params }: { params: { groupId: string } }) {
           supabase={supabase}
           userId={user?.userId ?? null}
           groupId={params.groupId}
-          availableTimeSlots={availableTimeSlots}
-          almostAvailableTimeSlots={almostAvailableTimeSlots}
+          blueSlots={almostAvailableTimeSlots}
+          greenSlots={greenSlots}
+          setGreenSlots={setGreenSlots}
           isUserSelected={selectedMember === user?.userId}
           isAllSelected={selectedMember === 'all'}
         />
