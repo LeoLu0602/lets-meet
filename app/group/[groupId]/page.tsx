@@ -253,6 +253,24 @@ export default function Page({ params }: { params: { groupId: string } }) {
     }
   }
 
+  async function handleLeave(): Promise<void> {
+    await handleLogout();
+
+    const { error }: { error: PostgrestError | null } = await supabase
+      .from('group_user')
+      .delete()
+      .eq('user_id', user?.userId ?? null);
+
+    if (error) {
+      console.error('Leaving Group Error: ', error);
+      alert('Leaving Group Error');
+
+      return;
+    }
+
+    setSelectedMember('all');
+  }
+
   function openModal(content: 'MemberSelection' | 'Logout'): void {
     setModalContent(content);
     setIsModalShown(true);
@@ -381,6 +399,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
             members={members}
             selectMember={selectMember}
             selectedMember={selectedMember}
+            handleLeave={handleLeave}
           />
         )}
       </main>

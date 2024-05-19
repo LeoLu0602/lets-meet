@@ -18,6 +18,7 @@ export default function Modal({
   members,
   selectMember,
   selectedMember,
+  handleLeave,
 }: {
   email: string | null;
   handleLogout: Function;
@@ -26,6 +27,7 @@ export default function Modal({
   members: Member[];
   selectMember: Function;
   selectedMember: string | null;
+  handleLeave: Function;
 }) {
   return (
     <section
@@ -48,6 +50,7 @@ export default function Modal({
           email={email}
           handleLogout={handleLogout}
           closeModal={closeModal}
+          handleLeave={handleLeave}
         />
       ) : (
         <></>
