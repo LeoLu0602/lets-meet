@@ -1,6 +1,7 @@
 'use client';
 import MemberSelection from '@/components/MemberSelection';
 import Logout from '@/components/Logout';
+import Leaving from '@/components/Leaving';
 
 interface Member {
   userId: string;
@@ -19,15 +20,17 @@ export default function Modal({
   selectMember,
   selectedMember,
   handleLeave,
+  leave,
 }: {
   email: string | null;
   handleLogout: Function;
   closeModal: Function;
-  content: 'MemberSelection' | 'Logout' | '';
+  content: '' | 'MemberSelection' | 'Logout' | 'Leaving';
   members: Member[];
   selectMember: Function;
   selectedMember: string | null;
   handleLeave: Function;
+  leave: Function;
 }) {
   return (
     <section
@@ -52,6 +55,8 @@ export default function Modal({
           closeModal={closeModal}
           handleLeave={handleLeave}
         />
+      ) : content === 'Leaving' ? (
+        <Leaving leave={leave} closeModal={closeModal} />
       ) : (
         <></>
       )}

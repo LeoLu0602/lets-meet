@@ -25,7 +25,7 @@ interface Member {
   availableTimeSlots: string[];
 }
 
-type ModalOptions = 'MemberSelection' | 'Logout' | '';
+type ModalOptions = '' | 'MemberSelection' | 'Logout' | 'Leaving';
 
 export default function Page({ params }: { params: { groupId: string } }) {
   /*
@@ -254,6 +254,10 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }
 
   async function handleLeave(): Promise<void> {
+    openModal('Leaving');
+  }
+
+  async function leave(): Promise<void> {
     await handleLogout();
 
     const { error }: { error: PostgrestError | null } = await supabase
@@ -271,13 +275,14 @@ export default function Page({ params }: { params: { groupId: string } }) {
     setSelectedMember('all');
   }
 
-  function openModal(content: 'MemberSelection' | 'Logout'): void {
+  function openModal(content: 'MemberSelection' | 'Logout' | 'Leaving'): void {
     setModalContent(content);
     setIsModalShown(true);
   }
 
   function closeModal(): void {
     setIsModalShown(false);
+    setModalContent('');
   }
 
   function selectMember(memberId: string): void {
@@ -400,6 +405,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
             selectMember={selectMember}
             selectedMember={selectedMember}
             handleLeave={handleLeave}
+            leave={leave}
           />
         )}
       </main>
