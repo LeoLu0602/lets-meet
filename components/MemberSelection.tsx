@@ -1,13 +1,7 @@
 'use client';
-import clsx from 'clsx';
 
-interface Member {
-  userId: string;
-  username: string;
-  email: string;
-  availableTimeSlots: string[];
-  avatarUrl: string;
-}
+import { Member } from '@/app/interfacesAndTypes';
+import clsx from 'clsx';
 
 export default function MemberSelection({
   members,
@@ -18,7 +12,7 @@ export default function MemberSelection({
   members: Member[];
   selectMember: Function;
   closeModal: Function;
-  selectedMember: string | null;
+  selectedMember: string;
 }) {
   function handleSelect(userId: string) {
     selectMember(userId);

@@ -1,15 +1,9 @@
 'use client';
+
+import { Member, ModalOptions } from '@/app/interfacesAndTypes';
 import MemberSelection from '@/components/MemberSelection';
 import Menu from '@/components/Menu';
 import Leaving from '@/components/Leaving';
-
-interface Member {
-  userId: string;
-  username: string;
-  email: string;
-  availableTimeSlots: string[];
-  avatarUrl: string;
-}
 
 export default function Modal({
   email,
@@ -25,10 +19,10 @@ export default function Modal({
   email: string | null;
   handleLogout: Function;
   closeModal: Function;
-  content: '' | 'MemberSelection' | 'Menu' | 'Leaving';
+  content: ModalOptions;
   members: Member[];
   selectMember: Function;
-  selectedMember: string | null;
+  selectedMember: string;
   handleLeave: Function;
   leave: Function;
 }) {

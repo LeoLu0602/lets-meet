@@ -9,6 +9,8 @@ import {
   createClient,
 } from '@supabase/supabase-js';
 
+import { Member, ModalOptions } from '@/app/interfacesAndTypes';
+
 import clsx from 'clsx';
 import Schedule from '@/components/Schedule';
 import Modal from '@/components/Modal';
@@ -16,16 +18,6 @@ import Modal from '@/components/Modal';
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const SUPABASE_URL = 'https://dynrtinrvrbbilkazcei.supabase.co';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-interface Member {
-  userId: string;
-  username: string;
-  email: string;
-  avatarUrl: string;
-  availableTimeSlots: string[];
-}
-
-type ModalOptions = '' | 'MemberSelection' | 'Menu' | 'Leaving';
 
 export default function Page({ params }: { params: { groupId: string } }) {
   /*
