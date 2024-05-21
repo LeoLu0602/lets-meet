@@ -25,7 +25,7 @@ interface Member {
   availableTimeSlots: string[];
 }
 
-type ModalOptions = '' | 'MemberSelection' | 'Logout' | 'Leaving';
+type ModalOptions = '' | 'MemberSelection' | 'Menu' | 'Leaving';
 
 export default function Page({ params }: { params: { groupId: string } }) {
   /*
@@ -275,7 +275,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
     setSelectedMember('all');
   }
 
-  function openModal(content: 'MemberSelection' | 'Logout' | 'Leaving'): void {
+  function openModal(content: 'MemberSelection' | 'Menu' | 'Leaving'): void {
     setModalContent(content);
     setIsModalShown(true);
   }
@@ -316,7 +316,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }
 
   function handleClickOnProfilePic() {
-    openModal('Logout');
+    openModal('Menu');
   }
 
   function viewMembers() {
