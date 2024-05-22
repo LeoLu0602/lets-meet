@@ -253,10 +253,15 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }
 
   async function leave(): Promise<void> {
+    if (!user) {
+      return;
+    }
+
     const { error }: { error: PostgrestError | null } = await supabase
       .from('group_user')
       .delete()
-      .eq('user_id', user?.userId ?? null);
+      .eq('user_id', user.userId)
+      .eq('group_id', params.groupId);
 
     if (error) {
       console.error('Leaving Group Error: ', error);
