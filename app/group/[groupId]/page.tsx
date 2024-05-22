@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 import {
   AuthError,
@@ -9,14 +10,14 @@ import {
   createClient,
 } from '@supabase/supabase-js';
 
-import { Member, ModalOptions } from '@/app/interfacesAndTypes';
-
 import clsx from 'clsx';
+import { Member, ModalOptions } from '@/app/interfacesAndTypes';
 import Schedule from '@/components/Schedule';
 import Modal from '@/components/Modal';
 
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
-const SUPABASE_URL = 'https://dynrtinrvrbbilkazcei.supabase.co';
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 export default function Page({ params }: { params: { groupId: string } }) {
@@ -47,6 +48,8 @@ export default function Page({ params }: { params: { groupId: string } }) {
   const [isUrlCopied, setIsUrlCopied] = useState<boolean>(false);
 
   const [greenSlots, setGreenSlots] = useState<string[]>([]);
+
+  const router = useRouter();
 
   const membersMap: Map<string, Member> = new Map(
     members.map((member) => [member.userId, member])
@@ -250,8 +253,6 @@ export default function Page({ params }: { params: { groupId: string } }) {
   }
 
   async function leave(): Promise<void> {
-    await handleLogout();
-
     const { error }: { error: PostgrestError | null } = await supabase
       .from('group_user')
       .delete()
@@ -264,7 +265,28 @@ export default function Page({ params }: { params: { groupId: string } }) {
       return;
     }
 
+    await handleLogout();
+
     setSelectedMember('all');
+
+    const members: Member[] = await getMembers(params.groupId);
+
+    if (members.length === 0) {
+      await deleteGroup(params.groupId);
+    }
+  }
+
+  async function deleteGroup(groupId: string): Promise<void> {
+    const { error } = await supabase.from('group').delete().eq('id', groupId);
+
+    if (error) {
+      console.error('Deleting Group Error: ', error);
+      alert('Deleting Group Error');
+
+      return;
+    }
+
+    router.push('/');
   }
 
   function openModal(content: 'MemberSelection' | 'Menu' | 'Leaving'): void {

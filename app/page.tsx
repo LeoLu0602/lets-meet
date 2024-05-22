@@ -2,14 +2,18 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@supabase/supabase-js';
 import clsx from 'clsx';
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 export default function Page() {
   const [isCreatingNewGroup, setIsCreatingNewGroup] = useState(false);
 
   const router = useRouter();
-  const supabase = createClient();
 
   async function startNewMeeting() {
     setIsCreatingNewGroup(true);
@@ -17,8 +21,8 @@ export default function Page() {
     const { data, error } = await supabase.from('group').insert([{}]).select();
 
     if (error) {
-      console.error('Creating Groupe Error: ', error);
-      alert('Creating Group Error');
+      console.error('Start New Meeting Error: ', error);
+      alert('Start New Meeting Error');
       setIsCreatingNewGroup(false);
     } else {
       const groupId: string = data[0].id;
@@ -43,7 +47,9 @@ export default function Page() {
               'bg-emerald-500  hover:bg-emerald-600': !isCreatingNewGroup,
               'bg-emerald-700': isCreatingNewGroup,
             })}
-            onClick={startNewMeeting}
+            onClick={async () => {
+              await startNewMeeting();
+            }}
             disabled={isCreatingNewGroup}
           >
             {isCreatingNewGroup ? 'Wait a minute ...' : 'New Meeting'}
