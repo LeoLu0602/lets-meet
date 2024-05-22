@@ -350,7 +350,10 @@ export default function Page({ params }: { params: { groupId: string } }) {
           'h-auto': !isModalShown,
         })}
       >
-        <section className='flex h-12 w-full items-center justify-end bg-zinc-800 font-bold'>
+        <section className='flex h-12 w-full items-center justify-end gap-4 bg-zinc-800 font-bold'>
+          <a className='text-sky-500' href='/'>
+            Start new meetings
+          </a>
           {user ? (
             <img
               className='h-8 w-8 cursor-pointer rounded-full'
