@@ -126,25 +126,38 @@ export default function Page({ params }: { params: { groupId: string } }) {
 
   async function setUp(): Promise<void> {
     const members: Member[] = await getMembers(params.groupId);
-    const user: User | null = await retrieveUser();
     const memberIds: Set<string> = new Set(members.map(({ userId }) => userId));
+    const user: User | null = await retrieveUser();
 
     setMembers(members);
 
-    // user is logged in
-    if (user) {
-      setSelectedMember(user.id);
-      setUser({
-        userId: user.id,
-        username: user.user_metadata.name,
-        email: user.user_metadata.email,
-        avatarUrl: user.user_metadata.avatar_url,
-      });
+    if (!user) {
+      return;
+    }
 
-      // user not in the group yet -> user joins the group
-      if (!memberIds.has(user.id)) {
-        await joinGroup(user, params.groupId);
+    // user is logged in
+
+    setUser({
+      userId: user.id,
+      username: user.user_metadata.name,
+      email: user.user_metadata.email,
+      avatarUrl: user.user_metadata.avatar_url,
+    });
+
+    setSelectedMember(user.id);
+
+    // user is the first member -> create the group
+    if (members.length === 0) {
+      const isSuccessful: boolean = await createGroup(params.groupId);
+
+      if (!isSuccessful) {
+        return;
       }
+    }
+
+    // user not in the group yet -> user joins the group
+    if (!memberIds.has(user.id)) {
+      await joinGroup(user, params.groupId);
     }
   }
 
@@ -281,17 +294,35 @@ export default function Page({ params }: { params: { groupId: string } }) {
     }
   }
 
-  async function deleteGroup(groupId: string): Promise<void> {
+  async function createGroup(groupId: string): Promise<boolean> {
+    const { error } = await supabase
+      .from('group')
+      .insert([{ id: groupId }])
+      .select();
+
+    if (error) {
+      console.error('Creating Group Error: ', error);
+      alert('Creating Group Error');
+
+      return false;
+    }
+
+    return true;
+  }
+
+  async function deleteGroup(groupId: string): Promise<boolean> {
     const { error } = await supabase.from('group').delete().eq('id', groupId);
 
     if (error) {
       console.error('Deleting Group Error: ', error);
       alert('Deleting Group Error');
 
-      return;
+      return false;
     }
 
     router.push('/');
+
+    return true;
   }
 
   function openModal(content: 'MemberSelection' | 'Menu' | 'Leaving'): void {
