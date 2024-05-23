@@ -126,10 +126,12 @@ export default function Page({ params }: { params: { groupId: string } }) {
 
   async function setUp(): Promise<void> {
     const members: Member[] = await getMembers(params.groupId);
+    const groupName: string = await getGroupName(params.groupId);
     const memberIds: Set<string> = new Set(members.map(({ userId }) => userId));
     const user: User | null = await retrieveUser();
 
     setMembers(members);
+    setGroupName(groupName);
 
     if (!user) {
       return;
@@ -196,6 +198,52 @@ export default function Page({ params }: { params: { groupId: string } }) {
         }
       ) ?? []
     );
+  }
+
+  async function getGroupName(groupId: string): Promise<string> {
+    const {
+      data,
+      error,
+    }: {
+      data: { name: string }[] | null;
+      error: PostgrestError | null;
+    } = await supabase.from('group').select('name').eq('id', groupId);
+
+    if (error) {
+      console.error('Get Group Name Error: ', error);
+      alert('Get Group Name Error');
+
+      return 'Untitled group';
+    }
+
+    return data?.[0].name ?? 'Untitled group';
+  }
+
+  async function handleGroupNameChange(
+    e: ChangeEvent<HTMLInputElement>
+  ): Promise<void> {
+    if (user) {
+      const newGroupName: string = e.target.value;
+
+      setGroupName(newGroupName);
+      await updateGroupName(params.groupId, newGroupName);
+    }
+  }
+
+  async function updateGroupName(
+    groupId: string,
+    newGroupName: string
+  ): Promise<void> {
+    const { error }: { error: PostgrestError | null } = await supabase
+      .from('group')
+      .update({ name: newGroupName })
+      .eq('id', groupId)
+      .select();
+
+    if (error) {
+      console.error('Update Group Name Error: ', error);
+      alert('Update Group Name Error');
+    }
   }
 
   async function retrieveUser(): Promise<User | null> {
@@ -277,8 +325,8 @@ export default function Page({ params }: { params: { groupId: string } }) {
       .eq('group_id', params.groupId);
 
     if (error) {
-      console.error('Leaving Group Error: ', error);
-      alert('Leaving Group Error');
+      console.error('Leave Group Error: ', error);
+      alert('Leave Group Error');
 
       return;
     }
@@ -297,7 +345,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
   async function createGroup(groupId: string): Promise<boolean> {
     const { error } = await supabase
       .from('group')
-      .insert([{ id: groupId }])
+      .insert([{ id: groupId, groupName: 'Untitled group' }])
       .select();
 
     if (error) {
@@ -314,8 +362,8 @@ export default function Page({ params }: { params: { groupId: string } }) {
     const { error } = await supabase.from('group').delete().eq('id', groupId);
 
     if (error) {
-      console.error('Deleting Group Error: ', error);
-      alert('Deleting Group Error');
+      console.error('Delete Group Error: ', error);
+      alert('Delete Group Error');
 
       return false;
     }
@@ -403,9 +451,8 @@ export default function Page({ params }: { params: { groupId: string } }) {
           <input
             className='h-8 w-[15.5rem] overflow-hidden text-ellipsis bg-zinc-800 text-right font-bold text-white focus:border-2 focus:border-white focus:pr-4 focus:outline-none'
             value={groupName}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              setGroupName(e.target.value);
-            }}
+            onChange={handleGroupNameChange}
+            disabled={user === null}
           />
         </section>
 
