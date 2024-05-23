@@ -41,8 +41,6 @@ export default function Page({ params }: { params: { groupId: string } }) {
   // selected member's userId ('all' for combined schedule)
   const [selectedMember, setSelectedMember] = useState<string>('all');
 
-  const [isModalShown, setIsModalShown] = useState<boolean>(false);
-
   const [modalContent, setModalContent] = useState<ModalOptions>('');
 
   const [isUrlCopied, setIsUrlCopied] = useState<boolean>(false);
@@ -327,11 +325,9 @@ export default function Page({ params }: { params: { groupId: string } }) {
 
   function openModal(content: 'MemberSelection' | 'Menu' | 'Leaving'): void {
     setModalContent(content);
-    setIsModalShown(true);
   }
 
   function closeModal(): void {
-    setIsModalShown(false);
     setModalContent('');
   }
 
@@ -377,8 +373,8 @@ export default function Page({ params }: { params: { groupId: string } }) {
     <>
       <main
         className={clsx('relative mx-auto max-w-[1024px] px-4 text-white', {
-          'h-screen overflow-hidden': isModalShown,
-          'h-auto': !isModalShown,
+          'h-screen overflow-hidden': modalContent !== '',
+          'h-auto': modalContent === '',
         })}
       >
         <section className='flex h-12 w-full items-center justify-end gap-4 bg-zinc-800 font-bold'>
@@ -448,7 +444,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
           isAllSelected={selectedMember === 'all'}
         />
 
-        {isModalShown && (
+        {modalContent !== '' && (
           <Modal
             email={user?.email ?? null}
             handleLogout={handleLogout}
