@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 import {
@@ -37,6 +37,8 @@ export default function Page({ params }: { params: { groupId: string } }) {
   );
 
   const [members, setMembers] = useState<Member[]>([]);
+
+  const [groupName, setGroupName] = useState<string>('Untitled group');
 
   // selected member's userId ('all' for combined schedule)
   const [selectedMember, setSelectedMember] = useState<string>('all');
@@ -379,7 +381,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
       >
         <section className='flex h-12 w-full items-center justify-end gap-4 bg-zinc-800 font-bold'>
           <a className='text-sky-500' href='/'>
-            Start new meetings
+            New meetings
           </a>
           {user ? (
             <img
@@ -395,6 +397,16 @@ export default function Page({ params }: { params: { groupId: string } }) {
               Log In
             </button>
           )}
+        </section>
+
+        <section className='flex h-12 w-full items-center justify-end gap-4 bg-zinc-800'>
+          <input
+            className='h-8 w-[15.5rem] overflow-hidden text-ellipsis bg-zinc-800 text-right font-bold text-white focus:border-2 focus:border-white focus:pr-4 focus:outline-none'
+            value={groupName}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              setGroupName(e.target.value);
+            }}
+          />
         </section>
 
         <section className='flex h-12 w-full items-center justify-end gap-4 bg-zinc-800'>
