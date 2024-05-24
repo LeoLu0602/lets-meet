@@ -452,12 +452,11 @@ export default function Page({ params }: { params: { groupId: string } }) {
             className={clsx(
               'h-8 w-[15.5rem] overflow-hidden text-ellipsis bg-zinc-800 text-right font-bold text-white focus:border-2 focus:border-white focus:pr-4 focus:outline-none',
               {
-                'text-opacity-100': user === null,
+                'pointer-events-none': user === null,
               }
             )}
             value={groupName}
             onChange={handleGroupNameChange}
-            disabled={user === null}
           />
         </section>
 
