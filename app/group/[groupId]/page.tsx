@@ -449,7 +449,12 @@ export default function Page({ params }: { params: { groupId: string } }) {
 
         <section className='flex h-12 w-full items-center justify-end gap-4 bg-zinc-800'>
           <input
-            className='h-8 w-[15.5rem] overflow-hidden text-ellipsis bg-zinc-800 text-right font-bold text-amber-500 focus:border-2 focus:border-white focus:pr-4 focus:outline-none disabled:text-amber-500 disabled:opacity-100'
+            className={clsx(
+              'h-8 w-[15.5rem] overflow-hidden text-ellipsis bg-zinc-800 text-right font-bold text-white focus:border-2 focus:border-white focus:pr-4 focus:outline-none',
+              {
+                'text-opacity-100': user === null,
+              }
+            )}
             value={groupName}
             onChange={handleGroupNameChange}
             disabled={user === null}
