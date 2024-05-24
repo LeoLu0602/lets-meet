@@ -449,7 +449,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
 
         <section className='flex h-12 w-full items-center justify-end gap-4 bg-zinc-800'>
           <input
-            className='h-8 w-[15.5rem] overflow-hidden text-ellipsis bg-zinc-800 text-right font-bold text-white focus:border-2 focus:border-white focus:pr-4 focus:outline-none disabled:text-white'
+            className='h-8 w-[15.5rem] overflow-hidden text-ellipsis bg-zinc-800 text-right font-bold text-amber-500 focus:border-2 focus:border-white focus:pr-4 focus:outline-none disabled:text-amber-500'
             value={groupName}
             onChange={handleGroupNameChange}
             disabled={user === null}
@@ -475,7 +475,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
           )}
 
           <section className='flex h-full items-center gap-4'>
-            <span className='flex h-8 w-52 items-center overflow-auto whitespace-nowrap rounded-lg bg-zinc-400 px-4 text-slate-700'>{`https://lets-meet-ivory.vercel.app/group/${params.groupId}`}</span>
+            <span className='flex h-8 w-52 items-center overflow-auto whitespace-nowrap rounded-lg bg-zinc-300 px-4 text-slate-700'>{`https://lets-meet-ivory.vercel.app/group/${params.groupId}`}</span>
             {isUrlCopied ? (
               <button
                 className='flex h-6 w-6 items-center justify-center text-2xl text-emerald-500'
