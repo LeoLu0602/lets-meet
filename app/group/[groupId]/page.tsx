@@ -10,6 +10,7 @@ import {
   createClient,
 } from '@supabase/supabase-js';
 
+import { useDebouncedCallback } from 'use-debounce';
 import clsx from 'clsx';
 import { Member, ModalOptions } from '@/app/interfacesAndTypes';
 import Schedule from '@/components/Schedule';
@@ -226,9 +227,11 @@ export default function Page({ params }: { params: { groupId: string } }) {
       const newGroupName: string = e.target.value;
 
       setGroupName(newGroupName);
-      await updateGroupName(params.groupId, newGroupName);
+      debouncedUpdateGroupName(params.groupId, newGroupName);
     }
   }
+
+  const debouncedUpdateGroupName = useDebouncedCallback(updateGroupName, 500);
 
   async function updateGroupName(
     groupId: string,
