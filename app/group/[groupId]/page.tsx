@@ -449,7 +449,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
 
         <section className='flex h-12 w-full items-center justify-end gap-4 bg-zinc-800'>
           <input
-            className='h-8 w-[15.5rem] overflow-hidden text-ellipsis bg-zinc-800 text-right font-bold text-white focus:border-2 focus:border-white focus:pr-4 focus:outline-none'
+            className='h-8 w-[15.5rem] overflow-hidden text-ellipsis bg-zinc-800 text-right font-bold text-white focus:border-2 focus:border-white focus:pr-4 focus:outline-none disabled:text-white'
             value={groupName}
             onChange={handleGroupNameChange}
             disabled={user === null}
