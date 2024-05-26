@@ -121,7 +121,10 @@ export default function Schedule({
                 className={clsx(
                   'relative h-full w-[12.5%] cursor-pointer border-r-2 border-t-2 first:border-t-0',
                   {
-                    'bg-emerald-500': greenSlotsSet.has(`${i},${j}`),
+                    'bg-emerald-500':
+                      greenSlotsSet.has(`${i},${j}`) && isUserSelected,
+                    'bg-emerald-700':
+                      greenSlotsSet.has(`${i},${j}`) && !isUserSelected,
                     'bg-sky-500':
                       isAllSelected && blueSlotsSet.has(`${i},${j}`),
                     'border-b-2': i === 23 && j > 0,
