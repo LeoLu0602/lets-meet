@@ -63,7 +63,7 @@ export default function Schedule({
   ): Promise<void> {
     const newGreenSlotsSet: Set<string> = new Set(greenSlots);
 
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < 48; i++) {
       newGreenSlotsSet.add(`${i},${col}`);
     }
 
@@ -114,8 +114,8 @@ export default function Schedule({
       </section>
 
       <section className='my-4'>
-        {new Array(24).fill(null).map((row, i) => (
-          <section key={i} className='flex h-16 w-full'>
+        {new Array(48).fill(null).map((row, i) => (
+          <section key={i} className='flex h-8 w-full'>
             {new Array(8).fill(null).map((col, j) => (
               <section
                 className={clsx(
@@ -123,11 +123,11 @@ export default function Schedule({
                   {
                     'bg-emerald-500':
                       greenSlotsSet.has(`${i},${j}`) && isUserSelected,
-                    'bg-emerald-700':
+                    'bg-emerald-600':
                       greenSlotsSet.has(`${i},${j}`) && !isUserSelected,
-                    'bg-sky-500':
+                    'bg-sky-600':
                       isAllSelected && blueSlotsSet.has(`${i},${j}`),
-                    'border-b-2': i === 23 && j > 0,
+                    'border-b-2': i === 47 && j > 0,
                   }
                 )}
                 key={j}
@@ -139,7 +139,10 @@ export default function Schedule({
               >
                 {j === 0 && (
                   <span className='absolute -top-2 left-0 flex h-4 w-full items-center justify-center text-xs'>
-                    {i.toString().padStart(2, '0')}:00
+                    {Math.floor(i / 2)
+                      .toString()
+                      .padStart(2, '0')}
+                    :{i % 2 === 0 ? '00' : '30'}
                   </span>
                 )}
               </section>
