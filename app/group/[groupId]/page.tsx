@@ -217,7 +217,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
       return 'Untitled group';
     }
 
-    return data?.[0].name ?? 'Untitled group';
+    return data?.[0]?.name ?? 'Untitled group';
   }
 
   async function handleGroupNameChange(
@@ -348,7 +348,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
   async function createGroup(groupId: string): Promise<boolean> {
     const { error } = await supabase
       .from('group')
-      .insert([{ id: groupId, groupName: 'Untitled group' }])
+      .insert([{ id: groupId, name: 'Untitled group' }])
       .select();
 
     if (error) {

@@ -1,13 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { uuid } from 'uuidv4';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function Page() {
   const router = useRouter();
 
   function startNewMeeting() {
-    router.push(`/group/${uuid()}`);
+    router.push(`/group/${uuidv4()}`);
   }
 
   function goToDashboard() {
@@ -29,9 +29,7 @@ export default function Page() {
           <section className='flex gap-4'>
             <button
               className='h-10 w-36 rounded-lg bg-emerald-500'
-              onClick={() => {
-                startNewMeeting();
-              }}
+              onClick={startNewMeeting}
             >
               New Meeting
             </button>
