@@ -432,7 +432,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
       >
         <section className='flex h-12 w-full items-center justify-end gap-4 bg-zinc-800 font-bold'>
           <a className='text-sky-500' href='/'>
-            New meetings
+            New Group
           </a>
           {user ? (
             <img

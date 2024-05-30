@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 export default function Page() {
   const router = useRouter();
 
-  function startNewMeeting() {
+  function startNewGroup() {
     router.push(`/group/${uuidv4()}`);
   }
 
@@ -28,14 +28,14 @@ export default function Page() {
 
           <section className='flex gap-4'>
             <button
-              className='h-10 w-36 rounded-lg bg-emerald-500'
-              onClick={startNewMeeting}
+              className='h-10 w-28 rounded-lg bg-emerald-500'
+              onClick={startNewGroup}
             >
-              New Meeting
+              New Group
             </button>
 
             <button
-              className='h-10 w-36 rounded-lg bg-sky-500'
+              className='h-10 w-28 rounded-lg bg-sky-500'
               onClick={goToDashboard}
             >
               Dashboard
