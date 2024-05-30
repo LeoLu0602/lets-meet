@@ -10,6 +10,10 @@ export default function Page() {
     router.push(`/group/${uuid()}`);
   }
 
+  function goToDashboard() {
+    router.push('/dashboard');
+  }
+
   return (
     <>
       <main className='flex h-screen w-screen items-center justify-center font-bold text-white'>
@@ -34,9 +38,7 @@ export default function Page() {
 
             <button
               className='h-10 w-36 rounded-lg bg-sky-500'
-              onClick={() => {
-                startNewMeeting();
-              }}
+              onClick={goToDashboard}
             >
               Dashboard
             </button>
