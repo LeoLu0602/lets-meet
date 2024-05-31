@@ -441,10 +441,7 @@ export default function Page({ params }: { params: { groupId: string } }) {
               onClick={handleClickOnProfilePic}
             />
           ) : (
-            <button
-              className='cursor-pointer text-emerald-500'
-              onClick={handleLogin}
-            >
+            <button className='text-emerald-500' onClick={handleLogin}>
               Log In
             </button>
           )}
