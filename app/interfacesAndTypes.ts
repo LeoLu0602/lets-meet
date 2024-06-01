@@ -6,4 +6,11 @@ export interface Member {
   availableTimeSlots: string[];
 }
 
+export interface UserInfo {
+  userId: string;
+  username: string;
+  email: string;
+  avatarUrl: string;
+}
+
 export type ModalOptions = '' | 'MemberSelection' | 'Menu' | 'Leaving';
