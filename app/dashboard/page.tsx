@@ -18,8 +18,6 @@ export default function Page() {
   async function setUp(): Promise<void> {
     const user: User | null = await retrieveUser();
 
-    console.log('user:', user);
-
     if (user) {
       setUser({
         userId: user.id,
@@ -56,6 +54,10 @@ export default function Page() {
             </button>
           )}
         </section>
+
+        <a className='px-4 font-bold text-sky-500' href='/'>
+          New Group
+        </a>
 
         {user && (
           <section className='w-screen p-4 font-bold text-white'>
