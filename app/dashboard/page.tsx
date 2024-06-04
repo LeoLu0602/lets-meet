@@ -10,7 +10,6 @@ import {
   retrieveUser,
   getGroups,
 } from '@/app/lib/utilities';
-import { group } from 'console';
 
 export default function Page() {
   const [user, setUser] = useState<UserInfo | null>(null);
@@ -66,7 +65,7 @@ export default function Page() {
           )}
         </section>
 
-        <a className='my-4 block font-bold text-sky-500' href='/'>
+        <a className='my-4 block font-bold text-emerald-500' href='/'>
           New Group
         </a>
 
@@ -84,16 +83,13 @@ export default function Page() {
               </section>
             </section>
 
-            <h2 className='my-8 text-2xl font-bold text-emerald-500'>
+            <h2 className='my-8 text-2xl font-bold text-white'>
               Your Groups
             </h2>
 
             <ul className='font-bold text-white'>
               {groups.map((group) => (
-                <li
-                  key={group.id}
-                  className='mb-4 cursor-pointer text-sky-500 last:mb-0'
-                >
+                <li key={group.id} className='mb-4 text-sky-500 last:mb-0'>
                   <a href={`/group/${group.id}`}>{group.name}</a>
                 </li>
               ))}

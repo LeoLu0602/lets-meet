@@ -431,8 +431,11 @@ export default function Page({ params }: { params: { groupId: string } }) {
         })}
       >
         <section className='flex h-12 w-full items-center justify-end gap-4 bg-zinc-800 font-bold'>
-          <a className='text-sky-500' href='/'>
+          <a className='text-emerald-500' href='/'>
             New Group
+          </a>
+          <a className='text-sky-500' href='/dashboard'>
+            Dashboard
           </a>
           {user ? (
             <img
